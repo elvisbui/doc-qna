@@ -1,0 +1,72 @@
+[project]
+name = "doc-qna"
+version = "0.1.0"
+description = "RAG document Q&A system — upload documents, ask questions, get cited answers"
+requires-python = ">=3.13"
+license = "MIT"
+
+dependencies = [
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.34.0",
+    "chromadb>=1.0.0",
+    "pypdf>=5.0.0",
+    "python-docx>=1.1.0",
+    "python-multipart>=0.0.18",
+    "pydantic>=2.0.0,<3.0.0",
+    "pydantic-settings>=2.7.0",
+    "httpx>=0.28.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3.0",
+    "pytest-asyncio>=0.25.0",
+    "pytest-cov>=6.0.0",
+    "ruff>=0.9.0",
+]
+
+[build-system]
+requires = ["setuptools>=75.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["app*"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+
+[tool.ruff]
+target-version = "py313"
+line-length = 120
+
+[tool.ruff.lint]
+select = [
+    "E",     # pycodestyle errors
+    "W",     # pycodestyle warnings
+    "F",     # pyflakes
+    "I",     # isort
+    "UP",    # pyupgrade
+    "B",     # flake8-bugbear
+    "SIM",   # flake8-simplify
+    "TCH",   # flake8-type-checking
+]
+ignore = [
+    "E501",   # line too long (handled by formatter)
+    "SIM108", # ternary operator suggestion
+    "SIM102", # collapsible if
+    "SIM115", # context manager for open
+    "TC003",  # move imports to TYPE_CHECKING block
+    "B017",   # assert blind exception
+    "E731",   # lambda assignment
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["app"]
+
+[tool.coverage.run]
+source = ["app"]
+
+[tool.coverage.report]
+show_missing = true
+skip_empty = true
