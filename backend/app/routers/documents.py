@@ -45,6 +45,7 @@ from app.services.document_store import (
     update_document_status as db_update_status,
 )
 from app.services.ingestion import ingest_document
+from app.services.retrieval import invalidate_bm25_cache
 from app.services.vectorstore import delete_by_document_id, get_default_collection
 
 logger = logging.getLogger(__name__)
@@ -94,7 +95,8 @@ async def _run_ingestion(
             chunk_size=_chunk_size,
             chunk_overlap=_chunk_overlap,
         )
-            await db_update_status(document_id, DocumentStatus.ready)
+        invalidate_bm25_cache()
+        await db_update_status(document_id, DocumentStatus.ready)
         logger.info("Document %s ingested successfully", document_id)
     except Exception as exc:
         await db_update_status(document_id, DocumentStatus.error, error_message=str(exc))
@@ -294,7 +296,8 @@ async def delete_document(document_id: str, request: Request) -> None:
         if collection is None:
             collection = get_default_collection(settings)
         await asyncio.to_thread(delete_by_document_id, collection, document_id)
-        except Exception as exc:
+        invalidate_bm25_cache()
+    except Exception as exc:
         logger.warning("Failed to delete chunks from ChromaDB for %s: %s", document_id, exc)
 
     # Remove from SQLite

@@ -18,6 +18,7 @@ from app.core.constants import MAX_CHUNKS_PER_QUERY
 from app.core.exceptions import RetrievalError
 from app.core.models import Citation
 from app.providers.embedder import get_embedding_provider
+from app.services.bm25 import BM25Index, bm25_search, build_bm25_index
 from app.services.vectorstore import get_default_collection, query_similar
 
 if TYPE_CHECKING:
@@ -29,6 +30,8 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
+# Module-level BM25 index cache (lazily built on first hybrid query)
+_bm25_index: BM25Index | None = None
 _bm25_lock = asyncio.Lock()
 
 
