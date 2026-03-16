@@ -9,3 +9,9 @@ __pycache__/
 venv/
 env/
 .DS_Store
+
+# ChromaDB
+chroma_data/
+
+# Uploaded documents
+uploads/
