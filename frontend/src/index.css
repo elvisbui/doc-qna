@@ -1,0 +1,90 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Smooth color transitions for dark mode */
+html {
+  color-scheme: light;
+}
+
+html.dark {
+  color-scheme: dark;
+  background-color: #212121;
+  color: #ececec;
+}
+
+/* Custom scrollbar — thin and subtle */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.25);
+}
+
+html.dark ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+html.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Selection styling */
+::selection {
+  background-color: #b4d5fe;
+  color: #1a1a1a;
+}
+
+html.dark ::selection {
+  background-color: #2e5a88;
+  color: #e5e5e5;
+}
+
+/* Animations */
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out;
+}
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.4s ease-out;
+}
+
+.stagger-1 { animation-delay: 50ms; animation-fill-mode: both; }
+.stagger-2 { animation-delay: 100ms; animation-fill-mode: both; }
+.stagger-3 { animation-delay: 150ms; animation-fill-mode: both; }
+.stagger-4 { animation-delay: 200ms; animation-fill-mode: both; }
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.animate-blink {
+  animation: blink 1s step-end infinite;
+}
+
+/* Sidebar transition */
+.sidebar-transition {
+  transition: width 0.2s ease, transform 0.2s ease;
+}
