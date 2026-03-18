@@ -15,3 +15,7 @@ chroma_data/
 
 # Uploaded documents
 uploads/
+
+# Node / Frontend
+node_modules/
+frontend/dist/
