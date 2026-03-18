@@ -17,7 +17,7 @@ export async function* parseSSEStream(
 ): AsyncGenerator<SSEEvent, void, unknown> {
   const decoder = new TextDecoder();
   let buffer = '';
-  let currentEvent = '';
+  let currentEvent = 'message';
   let dataLines: string[] = [];
 
   try {
