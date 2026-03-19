@@ -1,0 +1,26 @@
+.git
+.github
+.vscode
+*.md
+!README.md
+
+# Python
+backend/.venv
+backend/__pycache__
+backend/.pytest_cache
+backend/chroma_data
+backend/uploads
+
+# Frontend
+frontend/node_modules
+frontend/dist
+
+# Data
+chroma_data
+uploads
+packs/*.tar.gz
+
+# IDE
+.idea
+*.swp
+*.swo

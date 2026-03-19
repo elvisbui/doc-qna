@@ -1,14 +1,34 @@
-.env
-.env.local
-.env.*.local
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
 *.egg-info/
+dist/
+build/
+*.egg
 .venv/
 venv/
 env/
+
+# Node / Frontend
+node_modules/
+frontend/dist/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
 .DS_Store
+Thumbs.db
 
 # ChromaDB
 chroma_data/
@@ -16,6 +36,16 @@ chroma_data/
 # Uploaded documents
 uploads/
 
-# Node / Frontend
-node_modules/
-frontend/dist/
+# Runtime settings overlay (may contain API keys)
+settings.json
+
+# Test / Coverage
+.coverage
+htmlcov/
+.pytest_cache/
+
+# TypeScript build cache
+*.tsbuildinfo
+
+# Docker
+.docker/
