@@ -12,6 +12,7 @@ from fastapi import APIRouter, Depends, Request
 from fastapi.responses import StreamingResponse
 
 from app.config import Settings, get_settings
+from app.core.auth import resolve_user_id
 from app.routers import ERROR_RESPONSE_SCHEMA
 from app.schemas.chat import ChatRequest
 from app.services.generation import generate_answer_stream

@@ -19,6 +19,7 @@ if TYPE_CHECKING:
     from app.providers.base import EmbeddingProvider
 
 from app.config import get_settings
+from app.core.auth import resolve_user_id
 from app.core.constants import MAX_FILE_SIZE, PREVIEW_MAX_CHARS
 from app.core.models import Document, DocumentStatus
 from app.parsers import SUPPORTED_FILE_TYPES, parse_document

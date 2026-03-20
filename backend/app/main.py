@@ -12,9 +12,17 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from app.config import get_settings
+from app.core.constants import APP_VERSION
+from app.middleware.auth import APIKeyMiddleware
+from app.middleware.errors import register_error_handlers
+from app.middleware.logging import CorrelationIDMiddleware, setup_logging
+from app.middleware.timing import TimingMiddleware
 from app.routers import chat, documents
 
 settings = get_settings()
+
+setup_logging(level=settings.LOG_LEVEL)
+
 logger = logging.getLogger(__name__)
 
 FRONTEND_DIST = Path(__file__).resolve().parent.parent.parent / "frontend" / "dist"
@@ -24,10 +32,13 @@ FRONTEND_DIST = Path(__file__).resolve().parent.parent.parent / "frontend" / "di
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     """Manage application startup and shutdown lifecycle."""
     from app.core.constants import COLLECTION_NAME
+    from app.core.startup import validate_settings
     from app.providers.embedder import get_embedding_provider
     from app.services.cache import EmbeddingCache
     from app.services.generation import get_llm_provider
     from app.services.vectorstore import get_chroma_client
+
+    validate_settings(settings)
 
     client = get_chroma_client(settings)
     app.state.chroma_client = client
@@ -42,7 +53,10 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
     app.state.embedding_cache = EmbeddingCache(max_size=settings.EMBEDDING_CACHE_SIZE)
 
-    logger.info("Startup complete: chroma, embedder, cache initialized")
+    logger.info(
+        "Singleton clients initialized: chroma_client, embedder, embedding_cache (size=%d)",
+        settings.EMBEDDING_CACHE_SIZE,
+    )
 
     yield
 
@@ -56,34 +70,47 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
                 await client.close()
 
     if hasattr(app.state, "embedding_cache"):
+        cache_stats = app.state.embedding_cache.stats
+        logger.info("Embedding cache stats at shutdown: %s", cache_stats)
         app.state.embedding_cache.clear()
 
 
 app = FastAPI(
     title="Doc Q&A API",
     description="RAG-powered document question answering API",
-    version="0.1.0",
+    version=APP_VERSION,
     docs_url="/api/docs",
     redoc_url="/api/redoc",
     openapi_url="/api/openapi.json",
     lifespan=lifespan,
 )
 
+if settings.RATE_LIMIT_ENABLED:
+    from app.middleware.rate_limit import RateLimitMiddleware
+    app.add_middleware(RateLimitMiddleware)
+
+app.add_middleware(APIKeyMiddleware)
+app.add_middleware(TimingMiddleware)
+app.add_middleware(CorrelationIDMiddleware)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.CORS_ORIGINS,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["Content-Type", "Authorization", "X-API-Key", "X-Request-ID"],
+    expose_headers=["X-Request-ID", "X-Response-Time"],
 )
+
+register_error_handlers(app)
 
 app.include_router(documents.router)
 app.include_router(chat.router)
 
 
-@app.get("/api/health", tags=["health"])
+@app.get("/api/health", tags=["health"], summary="Check service health")
 async def health() -> dict:
-    """Health check endpoint."""
+    """Health check endpoint with dependency status."""
     deps: dict[str, dict[str, str]] = {}
 
     try:
@@ -117,7 +144,7 @@ async def health() -> dict:
     else:
         overall = "degraded"
 
-    return {"status": overall, "version": "0.1.0", "dependencies": deps}
+    return {"status": overall, "version": APP_VERSION, "dependencies": deps}
 
 
 if FRONTEND_DIST.is_dir():
