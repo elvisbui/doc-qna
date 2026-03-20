@@ -18,6 +18,7 @@ from app.middleware.errors import register_error_handlers
 from app.middleware.logging import CorrelationIDMiddleware, setup_logging
 from app.middleware.timing import TimingMiddleware
 from app.routers import chat, documents
+from app.routers import settings as settings_router
 
 settings = get_settings()
 
@@ -106,6 +107,7 @@ register_error_handlers(app)
 
 app.include_router(documents.router)
 app.include_router(chat.router)
+app.include_router(settings_router.router)
 
 
 @app.get("/api/health", tags=["health"], summary="Check service health")
