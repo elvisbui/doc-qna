@@ -1,0 +1,65 @@
+{
+  "pii_redactor": {
+    "name": "pii_redactor",
+    "path": "/Users/elvisbui/Downloads/github public project/doc-qna/backend/app/plugins/pii_redactor.py",
+    "module_name": "plugins.pii_redactor",
+    "enabled": true,
+    "description": "Strip/mask sensitive data from chunks",
+    "version": "0.0.0",
+    "hooks": [
+      "on_chunk"
+    ],
+    "config": {},
+    "config_schema": []
+  },
+  "pipeline": {
+    "name": "pipeline",
+    "path": "/Users/elvisbui/Downloads/github public project/doc-qna/backend/app/plugins/pipeline.py",
+    "module_name": "plugins.pipeline",
+    "enabled": true,
+    "description": "",
+    "version": "0.0.0",
+    "hooks": [],
+    "config": {},
+    "config_schema": []
+  },
+  "query_rewriter": {
+    "name": "query_rewriter",
+    "path": "/Users/elvisbui/Downloads/github public project/doc-qna/backend/app/plugins/query_rewriter.py",
+    "module_name": "plugins.query_rewriter",
+    "enabled": true,
+    "description": "Rephrase user queries before retrieval (HyDE-style)",
+    "version": "0.0.0",
+    "hooks": [
+      "on_retrieve"
+    ],
+    "config": {},
+    "config_schema": []
+  },
+  "reranker": {
+    "name": "reranker",
+    "path": "/Users/elvisbui/Downloads/github public project/doc-qna/backend/app/plugins/reranker.py",
+    "module_name": "plugins.reranker",
+    "enabled": true,
+    "description": "Cross-encoder style reranking via on_post_retrieve hook",
+    "version": "0.0.0",
+    "hooks": [
+      "on_post_retrieve"
+    ],
+    "config": {},
+    "config_schema": []
+  },
+  "summarizer": {
+    "name": "summarizer",
+    "path": "/Users/elvisbui/Downloads/github public project/doc-qna/backend/app/plugins/summarizer.py",
+    "module_name": "plugins.summarizer",
+    "enabled": true,
+    "description": "Auto-generate a document summary on ingest",
+    "version": "0.0.0",
+    "hooks": [
+      "on_ingest"
+    ],
+    "config": {},
+    "config_schema": []
+  }
+}
