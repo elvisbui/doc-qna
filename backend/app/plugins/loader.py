@@ -45,6 +45,8 @@ def discover_plugins(plugins_dir: str) -> list[dict]:
 
     plugins: list[dict] = []
     for py_file in sorted(directory.glob("*.py")):
+        if py_file.name.startswith("_"):
+            continue
         plugins.append(
             {
                 "name": py_file.stem,
