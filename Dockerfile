@@ -27,6 +27,8 @@ COPY backend/ ./backend/
 # Copy built frontend from stage 1
 COPY --from=frontend-build /app/frontend/dist ./frontend/dist
 
+# Copy knowledge packs
+COPY packs/ ./packs/
 
 # Create non-root user
 RUN groupadd --system appuser && \

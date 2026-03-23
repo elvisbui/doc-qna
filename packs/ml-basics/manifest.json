@@ -1,0 +1,13 @@
+{
+  "name": "ml-basics",
+  "version": "1.0.0",
+  "description": "Machine Learning basics covering core concepts, neural networks, and data preprocessing.",
+  "author": "doc-qna",
+  "license": "MIT",
+  "documents": [
+    "documents/machine-learning-basics.md",
+    "documents/neural-networks.md",
+    "documents/data-preprocessing.md"
+  ],
+  "doc_count": 3
+}

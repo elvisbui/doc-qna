@@ -1,0 +1,14 @@
+{
+  "name": "python-basics",
+  "version": "1.0.0",
+  "description": "Python fundamentals covering variables, functions, classes, and modules.",
+  "author": "doc-qna",
+  "license": "MIT",
+  "documents": [
+    "documents/variables-and-types.md",
+    "documents/functions.md",
+    "documents/classes.md",
+    "documents/modules.md"
+  ],
+  "doc_count": 4
+}
