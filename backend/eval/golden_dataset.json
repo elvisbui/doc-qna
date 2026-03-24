@@ -1,0 +1,92 @@
+[
+  {
+    "input": "What is the return policy for online purchases?",
+    "expected_output": "Customers can return online purchases within 30 days of delivery for a full refund. Items must be in their original packaging and unused condition. Refunds are processed within 5-7 business days after the returned item is received.",
+    "context": [
+      "Our return policy allows customers to return any online purchase within 30 days of delivery for a full refund.",
+      "Returned items must be in their original packaging and in unused condition to qualify for a refund.",
+      "Refunds are processed within 5-7 business days after we receive the returned item at our warehouse."
+    ]
+  },
+  {
+    "input": "How many vacation days do full-time employees receive?",
+    "expected_output": "Full-time employees receive 15 paid vacation days per year during their first three years of employment. After three years, this increases to 20 days per year. Unused vacation days can be carried over up to a maximum of 5 days.",
+    "context": [
+      "Full-time employees are entitled to 15 paid vacation days per year for the first three years of employment.",
+      "After completing three years of service, vacation allowance increases to 20 paid days per year.",
+      "Employees may carry over up to 5 unused vacation days to the following calendar year."
+    ]
+  },
+  {
+    "input": "What authentication methods does the API support?",
+    "expected_output": "The API supports three authentication methods: API key authentication via the X-API-Key header, OAuth 2.0 bearer tokens, and JWT tokens for session-based access. API keys are recommended for server-to-server communication, while OAuth 2.0 is preferred for user-facing applications.",
+    "context": [
+      "The API supports authentication via API keys passed in the X-API-Key header, OAuth 2.0 bearer tokens, and JWT tokens for session-based access.",
+      "For server-to-server communication, API key authentication is recommended due to its simplicity.",
+      "OAuth 2.0 is the preferred method for user-facing applications that require delegated authorization."
+    ]
+  },
+  {
+    "input": "What are the system requirements for installing the software?",
+    "expected_output": "The software requires a 64-bit operating system (Windows 10+, macOS 12+, or Ubuntu 20.04+), at least 8 GB of RAM, 2 GB of free disk space, and an internet connection for activation. A multi-core processor with 2.0 GHz or higher is recommended.",
+    "context": [
+      "System requirements: 64-bit operating system — Windows 10 or later, macOS 12 Monterey or later, or Ubuntu 20.04 LTS or later.",
+      "Minimum hardware: 8 GB RAM, 2 GB free disk space, and an active internet connection required for initial activation.",
+      "Recommended: multi-core processor running at 2.0 GHz or higher for optimal performance."
+    ]
+  },
+  {
+    "input": "How does the company handle data privacy and GDPR compliance?",
+    "expected_output": "The company is fully GDPR compliant. All personal data is encrypted at rest and in transit using AES-256 encryption. Users can request data export or deletion through the privacy dashboard. Data retention is limited to 24 months unless the user opts for extended storage.",
+    "context": [
+      "We are fully compliant with GDPR regulations and conduct annual third-party audits to verify our compliance status.",
+      "All personal data is encrypted at rest and in transit using AES-256 encryption standards.",
+      "Users can request a full export or deletion of their personal data through the privacy dashboard in their account settings. Data retention is limited to 24 months by default."
+    ]
+  },
+  {
+    "input": "What is the process for submitting a support ticket?",
+    "expected_output": "To submit a support ticket, log into the customer portal and navigate to the Help Center. Click 'New Ticket', select a category, describe your issue, and attach any relevant files. Tickets are assigned a priority level and you will receive a confirmation email with a tracking number. Response times vary by priority: critical issues within 1 hour, high within 4 hours, and standard within 24 hours.",
+    "context": [
+      "To submit a support ticket, log into the customer portal at support.example.com and navigate to the Help Center section.",
+      "Click 'New Ticket', select the appropriate category, provide a detailed description of your issue, and optionally attach relevant screenshots or log files.",
+      "Each ticket is assigned a priority level. Response times are: critical — 1 hour, high — 4 hours, standard — 24 hours. A confirmation email with a tracking number is sent immediately."
+    ]
+  },
+  {
+    "input": "What programming languages are supported by the SDK?",
+    "expected_output": "The SDK officially supports Python 3.9+, Node.js 18+, Java 17+, Go 1.21+, and Ruby 3.2+. Community-maintained wrappers are available for Rust and C#. Each SDK includes type definitions, automatic retries, and built-in logging.",
+    "context": [
+      "Official SDK support is available for Python 3.9+, Node.js 18+, Java 17+, Go 1.21+, and Ruby 3.2+.",
+      "Community-maintained SDK wrappers are available for Rust and C# through our open-source program.",
+      "All official SDKs include type definitions, automatic retry logic with exponential backoff, and built-in structured logging."
+    ]
+  },
+  {
+    "input": "How is employee performance evaluated?",
+    "expected_output": "Employee performance is evaluated through quarterly reviews with direct managers and an annual 360-degree review. Evaluations are based on goal completion, core competencies, and peer feedback. Ratings use a 5-point scale, and results directly influence compensation adjustments and promotion eligibility.",
+    "context": [
+      "Performance evaluations consist of quarterly one-on-one reviews with direct managers and a comprehensive annual 360-degree review.",
+      "Evaluations assess goal completion, demonstration of core competencies, and feedback collected from peers and cross-functional collaborators.",
+      "Performance ratings use a 5-point scale. Annual review results directly influence compensation adjustments and eligibility for promotion."
+    ]
+  },
+  {
+    "input": "What are the rate limits for the API?",
+    "expected_output": "The API enforces rate limits based on your plan tier. Free tier: 100 requests per minute, 1,000 per day. Pro tier: 1,000 requests per minute, 50,000 per day. Enterprise tier: custom limits. When limits are exceeded, the API returns a 429 status code with a Retry-After header.",
+    "context": [
+      "API rate limits vary by plan: Free tier allows 100 requests per minute and 1,000 per day.",
+      "Pro tier allows 1,000 requests per minute and 50,000 per day. Enterprise plans have custom negotiated limits.",
+      "When rate limits are exceeded, the API returns HTTP 429 Too Many Requests with a Retry-After header indicating when the client can retry."
+    ]
+  },
+  {
+    "input": "What backup and disaster recovery procedures are in place?",
+    "expected_output": "The system performs automated daily backups with 30-day retention. Backups are stored in geographically separate regions for redundancy. Full disaster recovery can restore service within a 4-hour RTO and 1-hour RPO. Recovery drills are conducted quarterly to validate the process.",
+    "context": [
+      "Automated daily backups are performed with a retention period of 30 days. All backups are encrypted and stored in a geographically separate region.",
+      "Our disaster recovery plan targets a Recovery Time Objective (RTO) of 4 hours and a Recovery Point Objective (RPO) of 1 hour.",
+      "Disaster recovery drills are conducted quarterly to validate backup integrity and recovery procedures."
+    ]
+  }
+]
