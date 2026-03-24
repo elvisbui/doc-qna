@@ -10,7 +10,8 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint src",
     "test": "vitest run",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "build:widget": "vite build --config vite.widget.config.ts"
   },
   "dependencies": {
     "@tailwindcss/typography": "^0.5.19",
