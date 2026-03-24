@@ -19,6 +19,7 @@ frontend/dist/
 .env.local
 .env.*.local
 
+
 # IDE
 .vscode/
 .idea/
@@ -49,3 +50,9 @@ htmlcov/
 
 # Docker
 .docker/
+
+# Ruff cache
+.ruff_cache/
+
+# Byte-compiled
+*.pyc
