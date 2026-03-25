@@ -5,8 +5,11 @@
 [![CI](https://github.com/elvisbui/doc-qna/actions/workflows/ci.yml/badge.svg)](https://github.com/elvisbui/doc-qna/actions/workflows/ci.yml)
 [![Python 3.13](https://img.shields.io/badge/python-3.13-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Live Demo](https://img.shields.io/badge/demo-doc--qna.elvisbui.dev-blue)](https://doc-qna.elvisbui.dev)
 
 A Retrieval-Augmented Generation (RAG) system that lets users upload documents and ask natural-language questions, receiving accurate, cited answers grounded in their own data -- not hallucinated internet responses. Runs entirely on your own hardware with Ollama at zero cost, or connects to OpenAI / Anthropic APIs.
+
+**[Try the live demo →](https://doc-qna.elvisbui.dev)**
 
 <!-- screenshot -->
 
@@ -15,11 +18,18 @@ A Retrieval-Augmented Generation (RAG) system that lets users upload documents a
 ## Features
 
 - **Document Upload and Management** -- PDF, DOCX, Markdown, and plain text
-- **Conversational Q&A with Citations** -- answers reference specific passages from your documents
+- **Conversational Q&A with Citations** -- answers reference specific passages with clickable inline citations
 - **Streaming Responses** -- real-time Server-Sent Events for a responsive chat experience
 - **Multiple LLM Providers** -- swap between Ollama (free, local), OpenAI, or Anthropic via a single env var
 - **Configurable Embeddings** -- choose OpenAI or Ollama embeddings independently of the LLM provider
+- **Hybrid Search** -- vector similarity + BM25 full-text search for better retrieval
 - **Confidence-Based Guardrails** -- the system abstains when retrieval confidence is too low instead of guessing
+- **Plugin System** -- hook-based architecture with built-in plugins (query rewriter, PII redactor, re-ranker, summarizer)
+- **Knowledge Packs** -- installable document collections with suggested queries
+- **Observability Dashboard** -- query latency, relevance scores, and error tracking
+- **Conversation Memory** -- LLM-powered summarization of long chat histories
+- **Embeddable Widget** -- drop a `<script>` tag on any page to add a chat widget
+- **Dark Mode** -- system-aware with manual toggle
 - **Self-Hostable** -- Docker Compose + Ollama, no API keys required
 - **No LangChain** -- thin Protocol-based provider wrappers; all RAG internals are visible, not hidden behind framework abstractions
 
@@ -61,6 +71,8 @@ The frontend is built with Vite and served as static files from FastAPI (single-
 ---
 
 ## Quick Start
+
+> Don't want to install anything? **[Try the live demo](https://doc-qna.elvisbui.dev)** -- upload a document and start asking questions in seconds.
 
 ### Option 1: One-command setup (recommended)
 
@@ -170,22 +182,28 @@ doc-qna/
 │   │   ├── core/                  # Domain models, constants, exceptions
 │   │   ├── parsers/               # PDF, DOCX, Markdown parsers
 │   │   ├── providers/             # LLM + embedding provider wrappers (Protocol-based)
-│   │   ├── routers/               # API route handlers (chat, documents)
+│   │   ├── routers/               # API route handlers (chat, documents, settings, plugins, packs)
 │   │   ├── schemas/               # Pydantic request/response schemas
-│   │   └── services/              # Business logic (ingestion, retrieval, generation)
+│   │   ├── services/              # Business logic (ingestion, retrieval, generation, metrics)
+│   │   └── plugins/               # Hook-based plugin system
 │   ├── tests/                     # pytest test suite
+│   ├── eval/                      # RAG evaluation pipeline (DeepEval)
 │   ├── requirements.txt
 │   └── .env.example
 ├── frontend/
 │   ├── src/
-│   │   ├── components/            # React components
+│   │   ├── components/            # React components (chat, documents, settings, UI)
 │   │   ├── hooks/                 # Custom React hooks
 │   │   ├── pages/                 # Page-level components
-│   │   ├── lib/                   # Utilities
+│   │   ├── widget/                # Embeddable chat widget (Shadow DOM)
+│   │   ├── lib/                   # API client, SSE parser, utilities
 │   │   └── types/                 # TypeScript type definitions
 │   └── package.json
+├── docs/                          # Docusaurus documentation site
+├── packs/                         # Knowledge pack registry + sample packs
 ├── docker-compose.yml
 ├── Dockerfile
+├── Makefile
 └── README.md
 ```
 
