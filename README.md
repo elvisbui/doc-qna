@@ -2,7 +2,26 @@
 
 **Upload documents. Ask questions. Get cited answers.**
 
+[![CI](https://github.com/elvisbui/doc-qna/actions/workflows/ci.yml/badge.svg)](https://github.com/elvisbui/doc-qna/actions/workflows/ci.yml)
+[![Python 3.13](https://img.shields.io/badge/python-3.13-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+
 A Retrieval-Augmented Generation (RAG) system that lets users upload documents and ask natural-language questions, receiving accurate, cited answers grounded in their own data -- not hallucinated internet responses. Runs entirely on your own hardware with Ollama at zero cost, or connects to OpenAI / Anthropic APIs.
+
+<!-- screenshot -->
+
+---
+
+## Features
+
+- **Document Upload and Management** -- PDF, DOCX, Markdown, and plain text
+- **Conversational Q&A with Citations** -- answers reference specific passages from your documents
+- **Streaming Responses** -- real-time Server-Sent Events for a responsive chat experience
+- **Multiple LLM Providers** -- swap between Ollama (free, local), OpenAI, or Anthropic via a single env var
+- **Configurable Embeddings** -- choose OpenAI or Ollama embeddings independently of the LLM provider
+- **Confidence-Based Guardrails** -- the system abstains when retrieval confidence is too low instead of guessing
+- **Self-Hostable** -- Docker Compose + Ollama, no API keys required
+- **No LangChain** -- thin Protocol-based provider wrappers; all RAG internals are visible, not hidden behind framework abstractions
 
 ---
 
@@ -53,7 +72,9 @@ cd doc-qna
 ./setup.sh docker   # Docker setup (everything in containers)
 ```
 
-### Option 2: Docker Compose
+The setup script installs all dependencies, creates `.env`, and pulls Ollama models automatically.
+
+### Option 2: Docker Compose (manual)
 
 ```bash
 git clone https://github.com/elvisbui/doc-qna.git
@@ -65,7 +86,7 @@ docker compose exec ollama ollama pull nomic-embed-text
 
 Open [http://localhost:8000](http://localhost:8000) in your browser.
 
-### Option 3: Local development
+### Option 3: Local development (manual)
 
 **Prerequisites:** Python 3.13+, Node.js 20+, [Ollama](https://ollama.com) (or OpenAI/Anthropic API keys)
 
@@ -74,8 +95,8 @@ Open [http://localhost:8000](http://localhost:8000) in your browser.
 cd backend
 python -m venv .venv
 source .venv/bin/activate   # Windows: .venv\Scripts\activate
-pip install -e ".[dev]"
-cp .env.example .env
+pip install -e ".[dev]"     # installs all deps + makes 'doc-qna' CLI available
+cp .env.example .env        # edit as needed
 uvicorn app.main:app --reload
 ```
 
@@ -84,6 +105,21 @@ uvicorn app.main:app --reload
 cd frontend
 npm install
 npm run dev
+```
+
+The Vite dev server starts at [http://localhost:5173](http://localhost:5173) and proxies `/api` requests to the backend.
+
+For production, the frontend is built (`npm run build`) and served as static files from FastAPI -- no separate frontend server needed.
+
+### Useful commands
+
+```bash
+make setup          # local setup (Python + Node + Ollama)
+make setup-docker   # Docker setup
+make test           # run all tests
+make build          # build frontend for production
+make up             # docker compose up
+make down           # docker compose down
 ```
 
 ---
@@ -98,11 +134,13 @@ Copy `backend/.env.example` to `backend/.env` and configure:
 | `EMBEDDING_PROVIDER` | `ollama` | Embedding backend: `openai` or `ollama` |
 | `OLLAMA_BASE_URL` | `http://localhost:11434` | Ollama server URL |
 | `OLLAMA_MODEL` | `llama3.2` | Ollama chat model |
-| `OPENAI_API_KEY` | -- | Required when using OpenAI |
-| `ANTHROPIC_API_KEY` | -- | Required when using Anthropic |
+| `OLLAMA_EMBEDDING_MODEL` | `nomic-embed-text` | Ollama embedding model (when `EMBEDDING_PROVIDER=ollama`) |
+| `EMBEDDING_MODEL` | `text-embedding-3-small` | OpenAI embedding model (when `EMBEDDING_PROVIDER=openai`) |
+| `OPENAI_API_KEY` | -- | Required when using OpenAI as LLM or embedding provider |
+| `ANTHROPIC_API_KEY` | -- | Required when using Anthropic as LLM provider |
 | `CHROMA_PERSIST_DIR` | `./chroma_data` | ChromaDB storage path |
 | `UPLOAD_DIR` | `./uploads` | Uploaded files directory |
-| `CORS_ORIGINS` | `http://localhost:5173,http://localhost:8000` | Allowed CORS origins |
+| `CORS_ORIGINS` | `http://localhost:5173,http://localhost:8000` | Allowed CORS origins (comma-separated) |
 
 See [`backend/.env.example`](backend/.env.example) for the full reference.
 
@@ -112,11 +150,11 @@ See [`backend/.env.example`](backend/.env.example) for the full reference.
 
 | Method | Endpoint | Description |
 |---|---|---|
-| `POST` | `/api/documents/upload` | Upload a document |
-| `GET` | `/api/documents` | List all documents |
-| `GET` | `/api/documents/{id}/status` | Check processing status |
-| `DELETE` | `/api/documents/{id}` | Delete a document |
-| `POST` | `/api/chat` | Send a query (streaming SSE) |
+| `POST` | `/api/documents/upload` | Upload a document (returns document ID) |
+| `GET` | `/api/documents` | List all documents with metadata |
+| `GET` | `/api/documents/{id}/status` | Check document processing status |
+| `DELETE` | `/api/documents/{id}` | Delete a document and its chunks |
+| `POST` | `/api/chat` | Send a query; returns streaming SSE response with citations |
 | `GET` | `/api/health` | Health check |
 
 ---
