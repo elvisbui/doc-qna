@@ -26,6 +26,9 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
   };
 
   (async () => {
+    const startTime = Date.now();
+    let hasError = false;
+    let avgRelevance = 0;
     try {
       // 1. Embed the query
       const embeddingResult = await AI.run("@cf/baai/bge-base-en-v1.5", {
@@ -85,6 +88,13 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
         }
       }
 
+      // Track average relevance
+      if (citations.length > 0) {
+        avgRelevance =
+          citations.reduce((sum, c) => sum + c.relevanceScore, 0) /
+          citations.length;
+      }
+
       // 4. Send citations
       await sendEvent("citations", JSON.stringify(citations));
 
@@ -136,8 +146,26 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
       await sendEvent("done", "");
     } catch (err) {
+      hasError = true;
       await sendEvent("error", (err as Error).message);
     } finally {
+      // Record metrics
+      try {
+        const latencyMs = Date.now() - startTime;
+        const raw = await KV.get("metrics_log");
+        const entries = raw ? JSON.parse(raw) : [];
+        entries.push({
+          timestamp: new Date().toISOString(),
+          latencyMs,
+          relevanceScore: Math.round(avgRelevance * 100) / 100,
+          error: hasError,
+        });
+        // Keep last 500 entries
+        const trimmed = entries.slice(-500);
+        await KV.put("metrics_log", JSON.stringify(trimmed));
+      } catch {
+        // Don't fail the request if metrics recording fails
+      }
       await writer.close();
     }
   })();
