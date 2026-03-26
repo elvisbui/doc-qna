@@ -1,0 +1,26 @@
+{
+  "name": "doc-qna",
+  "version": "1.0.0",
+  "description": "**Upload documents. Ask questions. Get cited answers.**",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/elvisbui/doc-qna.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/elvisbui/doc-qna/issues"
+  },
+  "homepage": "https://github.com/elvisbui/doc-qna#readme",
+  "dependencies": {
+    "unpdf": "^1.4.0"
+  }
+}
