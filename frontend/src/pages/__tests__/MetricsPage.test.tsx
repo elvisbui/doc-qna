@@ -53,9 +53,9 @@ afterEach(() => {
 
 describe('MetricsPage', () => {
   it('shows loading state initially', () => {
-    mockFetch.mockReturnValue(new Promise(() => {})); // never resolves
+    mockFetch.mockReturnValue(new Promise(() => {}));
     render(<MetricsPage />);
-    expect(screen.getByText('Loading metrics...')).toBeInTheDocument();
+    expect(screen.getByText('Loading metrics…')).toBeInTheDocument();
   });
 
   it('renders "No data yet" when API returns empty summary', async () => {
@@ -88,7 +88,7 @@ describe('MetricsPage', () => {
     });
   });
 
-  it('renders metric cards with data', async () => {
+  it('renders summary stats with data', async () => {
     mockFetch.mockImplementation((url: string) => {
       if (url.includes('/summary')) {
         return Promise.resolve({
@@ -105,12 +105,12 @@ describe('MetricsPage', () => {
     render(<MetricsPage />);
 
     await waitFor(() => {
-      expect(screen.getByText('Total Queries')).toBeInTheDocument();
+      expect(screen.getByText('Total queries')).toBeInTheDocument();
     });
 
     expect(screen.getByText('42')).toBeInTheDocument();
-    expect(screen.getByText('251 ms')).toBeInTheDocument(); // 250.5 rounded
-    expect(screen.getByText('800 ms')).toBeInTheDocument();
+    expect(screen.getByText('251ms')).toBeInTheDocument();
+    expect(screen.getByText('800ms')).toBeInTheDocument();
     expect(screen.getByText('0.823')).toBeInTheDocument();
     expect(screen.getByText('4.8%')).toBeInTheDocument();
   });
@@ -132,7 +132,7 @@ describe('MetricsPage', () => {
     render(<MetricsPage />);
 
     await waitFor(() => {
-      expect(screen.getByText('Queries Per Day')).toBeInTheDocument();
+      expect(screen.getByText('Queries per day')).toBeInTheDocument();
     });
 
     expect(screen.getByTestId('queries-per-day-chart')).toBeInTheDocument();
@@ -149,7 +149,7 @@ describe('MetricsPage', () => {
     render(<MetricsPage />);
 
     await waitFor(() => {
-      expect(screen.getByText('Failed to load metrics')).toBeInTheDocument();
+      expect(screen.getByText('Could not load metrics.')).toBeInTheDocument();
     });
   });
 });

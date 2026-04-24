@@ -4,7 +4,6 @@ import type { Settings } from '@/types';
 
 const LLM_PROVIDERS = ['ollama', 'openai', 'anthropic', 'cloudflare'] as const;
 
-/** Props for the LLMSection component. */
 interface LLMSectionProps {
   form: Partial<Settings>;
   ollamaModels: OllamaModel[];
@@ -18,7 +17,6 @@ interface LLMSectionProps {
   onClearConnectionResult: () => void;
 }
 
-/** Settings section for LLM provider selection, model picker, and connection testing. */
 export function LLMSection({
   form,
   ollamaModels,
@@ -32,9 +30,9 @@ export function LLMSection({
   onClearConnectionResult,
 }: LLMSectionProps) {
   return (
-    <Section title="LLM Configuration">
+    <Section title="Language model">
       <SelectField
-        label="LLM Provider"
+        label="Provider"
         value={form.llmProvider ?? ''}
         options={LLM_PROVIDERS}
         onChange={(v) => {
@@ -47,49 +45,40 @@ export function LLMSection({
           type="button"
           onClick={onTestConnection}
           disabled={testingConnection}
-          className="px-4 py-2 text-sm font-medium rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="rounded-full border border-gray-200 dark:border-white/15 px-3.5 py-1.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/5 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
         >
-          {testingConnection ? 'Testing...' : 'Test Connection'}
+          {testingConnection ? 'Testing…' : 'Test connection'}
         </button>
         {connectionResult && (
-          <span className={`flex items-center gap-1 text-sm ${connectionResult.status === 'ok' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-            {connectionResult.status === 'ok' ? (
-              <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-              </svg>
-            ) : (
-              <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-              </svg>
-            )}
-            {connectionResult.message}
+          <span className="text-sm text-gray-600 dark:text-gray-300">
+            {connectionResult.status === 'ok' ? 'Connected.' : connectionResult.message}
           </span>
         )}
       </div>
       <TextField
-        label="Ollama Base URL"
+        label="Ollama base URL"
         value={form.ollamaBaseUrl ?? ''}
         onChange={(v) => onFieldChange('ollamaBaseUrl', v)}
       />
       {form.llmProvider === 'ollama' && ollamaModels.length > 0 ? (
         <div>
-          <div className="flex items-center justify-between mb-1">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Ollama Model
+          <div className="flex items-center justify-between mb-1.5">
+            <label className="block text-sm text-gray-700 dark:text-gray-300">
+              Ollama model
             </label>
             <button
               type="button"
               onClick={onRefreshModels}
               disabled={loadingModels}
-              className="text-xs text-blue-600 dark:text-blue-400 hover:underline disabled:opacity-50"
+              className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 disabled:opacity-40 transition-colors"
             >
-              {loadingModels ? 'Refreshing...' : 'Refresh'}
+              {loadingModels ? 'Refreshing…' : 'Refresh'}
             </button>
           </div>
           <select
             value={form.ollamaModel ?? ''}
             onChange={(e) => onFieldChange('ollamaModel', e.target.value)}
-            className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 text-gray-900 dark:text-gray-100 px-3 py-2 text-sm focus:outline-none focus:border-gray-400 dark:focus:border-white/30 transition-colors"
           >
             {form.ollamaModel && !ollamaModels.some((m) => m.name === form.ollamaModel) && (
               <option value={form.ollamaModel}>{form.ollamaModel}</option>
@@ -103,18 +92,18 @@ export function LLMSection({
         </div>
       ) : (
         <div>
-          <div className="flex items-center justify-between mb-1">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Ollama Model
+          <div className="flex items-center justify-between mb-1.5">
+            <label className="block text-sm text-gray-700 dark:text-gray-300">
+              Ollama model
             </label>
             {form.llmProvider === 'ollama' && (
               <button
                 type="button"
                 onClick={onRefreshModels}
                 disabled={loadingModels}
-                className="text-xs text-blue-600 dark:text-blue-400 hover:underline disabled:opacity-50"
+                className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 disabled:opacity-40 transition-colors"
               >
-                {loadingModels ? 'Refreshing...' : 'Refresh'}
+                {loadingModels ? 'Refreshing…' : 'Refresh'}
               </button>
             )}
           </div>
@@ -122,10 +111,10 @@ export function LLMSection({
             type="text"
             value={form.ollamaModel ?? ''}
             onChange={(e) => onFieldChange('ollamaModel', e.target.value)}
-            className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 text-gray-900 dark:text-gray-100 px-3 py-2 text-sm focus:outline-none focus:border-gray-400 dark:focus:border-white/30 transition-colors"
           />
           {ollamaModelsError && form.llmProvider === 'ollama' && (
-            <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1.5">
               {ollamaModelsError}
             </p>
           )}

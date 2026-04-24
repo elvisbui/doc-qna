@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react';
 import {
   LineChart, Line, BarChart, Bar,
-  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  XAxis, YAxis, Tooltip, ResponsiveContainer,
 } from 'recharts';
 import type { MetricsSummary, QueryMetric } from '@/types';
 
-/** Dashboard page displaying query analytics, latency distribution, and relevance charts. */
 export function MetricsPage() {
   const [summary, setSummary] = useState<MetricsSummary | null>(null);
   const [recent, setRecent] = useState<QueryMetric[]>([]);
@@ -29,7 +28,7 @@ export function MetricsPage() {
         setSummary(summaryData);
         setRecent(recentData);
       } catch {
-        setError('Failed to load metrics');
+        setError('Could not load metrics.');
       } finally {
         setLoading(false);
       }
@@ -40,7 +39,7 @@ export function MetricsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <p className="text-gray-500 dark:text-gray-400">Loading metrics...</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400">Loading metrics…</p>
       </div>
     );
   }
@@ -48,7 +47,7 @@ export function MetricsPage() {
   if (error) {
     return (
       <div className="flex items-center justify-center py-20">
-        <p className="text-red-600 dark:text-red-400">{error}</p>
+        <p className="text-sm text-gray-600 dark:text-gray-300">{error}</p>
       </div>
     );
   }
@@ -57,22 +56,22 @@ export function MetricsPage() {
 
   if (isEmpty) {
     return (
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Metrics</h2>
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-12 text-center">
-          <p className="text-gray-500 dark:text-gray-400 text-lg">No data yet</p>
-          <p className="text-gray-400 dark:text-gray-500 text-sm mt-2">
-            Start asking questions in the Chat tab to see analytics here.
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 py-10">
+        <header className="mb-10">
+          <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Metrics</h1>
+        </header>
+        <div className="py-16 text-center">
+          <p className="text-sm text-gray-900 dark:text-gray-100">No data yet</p>
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+            Ask a question in the chat to start collecting metrics.
           </p>
         </div>
       </div>
     );
   }
 
-  // Build latency distribution buckets from recent metrics
   const latencyBuckets = buildLatencyBuckets(recent);
 
-  // Build relevance over time (use recent metrics sorted by timestamp ascending)
   const relevanceOverTime = [...recent]
     .filter((m) => !m.error)
     .sort((a, b) => a.timestamp - b.timestamp)
@@ -82,81 +81,146 @@ export function MetricsPage() {
     }));
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Metrics</h2>
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10">
+      <header className="mb-10">
+        <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Metrics</h1>
+      </header>
 
-      {/* Summary cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
-        <MetricCard label="Total Queries" value={String(summary!.totalQueries)} />
-        <MetricCard label="Avg Latency" value={`${summary!.avgLatencyMs.toFixed(0)} ms`} />
-        <MetricCard label="p95 Latency" value={`${summary!.p95LatencyMs.toFixed(0)} ms`} />
-        <MetricCard label="Avg Relevance" value={summary!.avgRelevanceScore.toFixed(3)} />
-        <MetricCard label="Error Rate" value={`${(summary!.errorRate * 100).toFixed(1)}%`} />
-      </div>
+      <StatRow
+        stats={[
+          { label: 'Total queries', value: String(summary!.totalQueries) },
+          { label: 'Avg latency', value: formatMs(summary!.avgLatencyMs) },
+          { label: 'p95 latency', value: formatMs(summary!.p95LatencyMs) },
+          { label: 'Avg relevance', value: summary!.avgRelevanceScore.toFixed(3) },
+          { label: 'Error rate', value: `${(summary!.errorRate * 100).toFixed(1)}%` },
+        ]}
+      />
 
-      <div className="space-y-8">
-        {/* Chart 1: Queries per day */}
-        <Section title="Queries Per Day">
-          <div className="h-64" data-testid="queries-per-day-chart">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={summary!.queriesPerDay}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" tick={{ fontSize: 12 }} />
-                <YAxis allowDecimals={false} />
-                <Tooltip />
-                <Line type="monotone" dataKey="count" stroke="#3b82f6" strokeWidth={2} />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </Section>
+      <div className="space-y-12 mt-12">
+        <ChartBlock title="Queries per day" testId="queries-per-day-chart">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={summary!.queriesPerDay} margin={{ top: 4, right: 8, bottom: 0, left: -20 }}>
+              <XAxis
+                dataKey="date"
+                tick={{ fontSize: 11, fill: 'currentColor' }}
+                axisLine={false}
+                tickLine={false}
+                className="text-gray-500 dark:text-gray-400"
+              />
+              <YAxis
+                allowDecimals={false}
+                tick={{ fontSize: 11, fill: 'currentColor' }}
+                axisLine={false}
+                tickLine={false}
+                className="text-gray-500 dark:text-gray-400"
+              />
+              <Tooltip
+                contentStyle={tooltipStyle}
+                cursor={{ stroke: 'rgba(0,0,0,0.1)', strokeWidth: 1 }}
+              />
+              <Line
+                type="monotone"
+                dataKey="count"
+                stroke="currentColor"
+                strokeWidth={1.5}
+                dot={{ r: 3, strokeWidth: 0, fill: 'currentColor' }}
+                activeDot={{ r: 4, strokeWidth: 0, fill: 'currentColor' }}
+                className="text-gray-900 dark:text-gray-100"
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </ChartBlock>
 
-        {/* Chart 2: Latency distribution */}
-        <Section title="Latency Distribution">
-          <div className="h-64" data-testid="latency-distribution-chart">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={latencyBuckets}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="range" tick={{ fontSize: 12 }} />
-                <YAxis allowDecimals={false} />
-                <Tooltip />
-                <Bar dataKey="count" fill="#8b5cf6" />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </Section>
+        <ChartBlock title="Latency distribution" testId="latency-distribution-chart">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={latencyBuckets} margin={{ top: 4, right: 8, bottom: 0, left: -20 }}>
+              <XAxis
+                dataKey="range"
+                tick={{ fontSize: 11, fill: 'currentColor' }}
+                axisLine={false}
+                tickLine={false}
+                className="text-gray-500 dark:text-gray-400"
+              />
+              <YAxis
+                allowDecimals={false}
+                tick={{ fontSize: 11, fill: 'currentColor' }}
+                axisLine={false}
+                tickLine={false}
+                className="text-gray-500 dark:text-gray-400"
+              />
+              <Tooltip
+                contentStyle={tooltipStyle}
+                cursor={{ fill: 'rgba(0,0,0,0.04)' }}
+              />
+              <Bar
+                dataKey="count"
+                fill="currentColor"
+                radius={[2, 2, 0, 0]}
+                className="text-gray-900 dark:text-gray-100"
+              />
+            </BarChart>
+          </ResponsiveContainer>
+        </ChartBlock>
 
-        {/* Chart 3: Relevance over time */}
-        <Section title="Relevance Score Over Time">
-          <div className="h-64" data-testid="relevance-over-time-chart">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={relevanceOverTime}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="time" tick={{ fontSize: 12 }} />
-                <YAxis domain={[0, 1]} />
-                <Tooltip />
-                <Line type="monotone" dataKey="relevance" stroke="#10b981" strokeWidth={2} />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </Section>
+        <ChartBlock title="Relevance over time" testId="relevance-over-time-chart">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={relevanceOverTime} margin={{ top: 4, right: 8, bottom: 0, left: -20 }}>
+              <XAxis
+                dataKey="time"
+                tick={{ fontSize: 11, fill: 'currentColor' }}
+                axisLine={false}
+                tickLine={false}
+                className="text-gray-500 dark:text-gray-400"
+              />
+              <YAxis
+                domain={[0, 1]}
+                tick={{ fontSize: 11, fill: 'currentColor' }}
+                axisLine={false}
+                tickLine={false}
+                className="text-gray-500 dark:text-gray-400"
+              />
+              <Tooltip
+                contentStyle={tooltipStyle}
+                cursor={{ stroke: 'rgba(0,0,0,0.1)', strokeWidth: 1 }}
+              />
+              <Line
+                type="monotone"
+                dataKey="relevance"
+                stroke="currentColor"
+                strokeWidth={1.5}
+                dot={{ r: 3, strokeWidth: 0, fill: 'currentColor' }}
+                activeDot={{ r: 4, strokeWidth: 0, fill: 'currentColor' }}
+                className="text-gray-900 dark:text-gray-100"
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </ChartBlock>
       </div>
     </div>
   );
 }
 
-/* ---- Helpers ---- */
+const tooltipStyle: React.CSSProperties = {
+  background: 'rgba(23, 23, 23, 0.92)',
+  border: 'none',
+  borderRadius: 8,
+  padding: '6px 10px',
+  color: '#fff',
+  fontSize: 12,
+  boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+};
 
-/**
- * Group query metrics into latency distribution buckets for charting.
- * @param metrics - Array of recent query metrics
- * @returns Array of buckets with range labels and counts
- */
+function formatMs(ms: number): string {
+  if (ms >= 1000) return `${(ms / 1000).toFixed(2)}s`;
+  return `${ms.toFixed(0)}ms`;
+}
+
 function buildLatencyBuckets(metrics: QueryMetric[]) {
   const buckets = [
-    { range: '0-100ms', min: 0, max: 100, count: 0 },
-    { range: '100-500ms', min: 100, max: 500, count: 0 },
-    { range: '500ms-1s', min: 500, max: 1000, count: 0 },
-    { range: '1-3s', min: 1000, max: 3000, count: 0 },
+    { range: '<100ms', min: 0, max: 100, count: 0 },
+    { range: '100–500ms', min: 100, max: 500, count: 0 },
+    { range: '500ms–1s', min: 500, max: 1000, count: 0 },
+    { range: '1–3s', min: 1000, max: 3000, count: 0 },
     { range: '3s+', min: 3000, max: Infinity, count: 0 },
   ];
   for (const m of metrics) {
@@ -170,22 +234,40 @@ function buildLatencyBuckets(metrics: QueryMetric[]) {
   return buckets.map(({ range, count }) => ({ range, count }));
 }
 
-/* ---- Sub-components ---- */
-
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function StatRow({ stats }: { stats: { label: string; value: string }[] }) {
   return (
-    <section className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">{title}</h3>
-      {children}
-    </section>
+    <dl className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-x-8 gap-y-6 border-t border-gray-200 dark:border-white/10 pt-6">
+      {stats.map((s) => (
+        <div key={s.label} className="min-w-0">
+          <dt className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
+            {s.label}
+          </dt>
+          <dd className="mt-1 text-2xl font-semibold tabular-nums text-gray-900 dark:text-gray-100 truncate">
+            {s.value}
+          </dd>
+        </div>
+      ))}
+    </dl>
   );
 }
 
-function MetricCard({ label, value }: { label: string; value: string }) {
+function ChartBlock({
+  title,
+  testId,
+  children,
+}: {
+  title: string;
+  testId: string;
+  children: React.ReactNode;
+}) {
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
-      <p className="text-sm text-gray-500 dark:text-gray-400">{label}</p>
-      <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{value}</p>
-    </div>
+    <section>
+      <h2 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-3">
+        {title}
+      </h2>
+      <div className="h-60" data-testid={testId}>
+        {children}
+      </div>
+    </section>
   );
 }

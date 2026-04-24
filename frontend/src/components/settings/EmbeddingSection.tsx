@@ -21,7 +21,6 @@ const CLOUDFLARE_EMBEDDING_MODELS = [
   '@cf/baai/bge-small-en-v1.5',
 ] as const;
 
-/** Props for the EmbeddingSection component. */
 interface EmbeddingSectionProps {
   form: Partial<Settings>;
   ollamaEmbeddingModels: string[];
@@ -31,7 +30,6 @@ interface EmbeddingSectionProps {
   onRefreshEmbeddingModels: () => void;
 }
 
-/** Settings section for embedding provider and model selection. */
 export function EmbeddingSection({
   form,
   ollamaEmbeddingModels,
@@ -40,23 +38,26 @@ export function EmbeddingSection({
   onFieldChange,
   onRefreshEmbeddingModels,
 }: EmbeddingSectionProps) {
+  const inputCls =
+    'w-full rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 text-gray-900 dark:text-gray-100 px-3 py-2 text-sm focus:outline-none focus:border-gray-400 dark:focus:border-white/30 transition-colors';
+
   return (
-    <Section title="Embedding Configuration">
+    <Section title="Embeddings">
       <SelectField
-        label="Embedding Provider"
+        label="Provider"
         value={form.embeddingProvider ?? ''}
         options={EMBEDDING_PROVIDERS}
         onChange={(v) => onFieldChange('embeddingProvider', v)}
       />
       {form.embeddingProvider === 'openai' ? (
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Embedding Model
+          <label className="block text-sm text-gray-700 dark:text-gray-300 mb-1.5">
+            Model
           </label>
           <select
             value={form.embeddingModel ?? ''}
             onChange={(e) => onFieldChange('embeddingModel', e.target.value)}
-            className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className={inputCls}
           >
             {form.embeddingModel && !OPENAI_EMBEDDING_MODELS.includes(form.embeddingModel as typeof OPENAI_EMBEDDING_MODELS[number]) && (
               <option value={form.embeddingModel}>{form.embeddingModel}</option>
@@ -68,24 +69,24 @@ export function EmbeddingSection({
         </div>
       ) : form.embeddingProvider === 'ollama' ? (
         <div>
-          <div className="flex items-center justify-between mb-1">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Embedding Model
+          <div className="flex items-center justify-between mb-1.5">
+            <label className="block text-sm text-gray-700 dark:text-gray-300">
+              Model
             </label>
             <button
               type="button"
               onClick={onRefreshEmbeddingModels}
               disabled={loadingEmbeddingModels}
-              className="text-xs text-blue-600 dark:text-blue-400 hover:underline disabled:opacity-50"
+              className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 disabled:opacity-40 transition-colors"
             >
-              {loadingEmbeddingModels ? 'Refreshing...' : 'Refresh'}
+              {loadingEmbeddingModels ? 'Refreshing…' : 'Refresh'}
             </button>
           </div>
           {ollamaEmbeddingModels.length > 0 && !ollamaEmbeddingError ? (
             <select
               value={form.embeddingModel ?? ''}
               onChange={(e) => onFieldChange('embeddingModel', e.target.value)}
-              className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={inputCls}
             >
               {form.embeddingModel && !ollamaEmbeddingModels.includes(form.embeddingModel) && (
                 <option value={form.embeddingModel}>{form.embeddingModel}</option>
@@ -99,7 +100,7 @@ export function EmbeddingSection({
               <select
                 value={form.embeddingModel ?? ''}
                 onChange={(e) => onFieldChange('embeddingModel', e.target.value)}
-                className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={inputCls}
               >
                 {form.embeddingModel && !OLLAMA_EMBEDDING_MODELS_FALLBACK.includes(form.embeddingModel as typeof OLLAMA_EMBEDDING_MODELS_FALLBACK[number]) && (
                   <option value={form.embeddingModel}>{form.embeddingModel}</option>
@@ -109,8 +110,8 @@ export function EmbeddingSection({
                 ))}
               </select>
               {ollamaEmbeddingError && (
-                <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">
-                  {ollamaEmbeddingError} — showing common models as fallback.
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1.5">
+                  {ollamaEmbeddingError} Showing common models.
                 </p>
               )}
             </>
@@ -118,13 +119,13 @@ export function EmbeddingSection({
         </div>
       ) : form.embeddingProvider === 'cloudflare' ? (
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Embedding Model
+          <label className="block text-sm text-gray-700 dark:text-gray-300 mb-1.5">
+            Model
           </label>
           <select
             value={form.embeddingModel ?? ''}
             onChange={(e) => onFieldChange('embeddingModel', e.target.value)}
-            className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className={inputCls}
           >
             {form.embeddingModel && !CLOUDFLARE_EMBEDDING_MODELS.includes(form.embeddingModel as typeof CLOUDFLARE_EMBEDDING_MODELS[number]) && (
               <option value={form.embeddingModel}>{form.embeddingModel}</option>
@@ -136,7 +137,7 @@ export function EmbeddingSection({
         </div>
       ) : (
         <TextField
-          label="Embedding Model"
+          label="Model"
           value={form.embeddingModel ?? ''}
           onChange={(v) => onFieldChange('embeddingModel', v)}
         />

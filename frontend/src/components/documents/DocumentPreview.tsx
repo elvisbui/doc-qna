@@ -2,17 +2,12 @@ import { useEffect, useState } from 'react';
 import { getDocumentPreview } from '@/lib/api';
 import type { DocumentPreview as DocumentPreviewType } from '@/types';
 
-/** Props for the DocumentPreview component. */
 interface DocumentPreviewProps {
-  /** The document ID to fetch the preview for */
   documentId: string;
-  /** The document filename to display in the header */
   filename: string;
-  /** Callback to close the preview panel */
   onClose: () => void;
 }
 
-/** Slide-out panel displaying a text preview of a document's content. */
 export function DocumentPreview({ documentId, filename, onClose }: DocumentPreviewProps) {
   const [preview, setPreview] = useState<DocumentPreviewType | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -31,7 +26,7 @@ export function DocumentPreview({ documentId, filename, onClose }: DocumentPrevi
         }
       } catch (err) {
         if (!cancelled) {
-          setError(err instanceof Error ? err.message : 'Failed to load preview');
+          setError(err instanceof Error ? err.message : 'Could not load preview.');
         }
       } finally {
         if (!cancelled) {
@@ -58,64 +53,58 @@ export function DocumentPreview({ documentId, filename, onClose }: DocumentPrevi
 
   return (
     <>
-      {/* Backdrop */}
       <div
-        className="fixed inset-0 z-40 bg-black/30"
+        className="fixed inset-0 z-40 bg-black/30 backdrop-blur-[1px]"
         onClick={onClose}
       />
 
-      {/* Slide-out panel */}
-      <div className="fixed inset-y-0 right-0 z-50 flex w-full max-w-lg flex-col bg-white shadow-xl">
-        {/* Header */}
-        <div className="flex items-center justify-between border-b border-gray-200 px-4 py-3">
+      <div className="fixed inset-y-0 right-0 z-50 flex w-full max-w-lg flex-col bg-white dark:bg-[#212121] border-l border-gray-200 dark:border-white/10">
+        <div className="flex items-center justify-between border-b border-gray-200 dark:border-white/10 px-4 py-3">
           <div className="min-w-0 flex-1">
-            <h2 className="truncate text-sm font-semibold text-gray-900">
+            <h2 className="truncate text-sm font-medium text-gray-900 dark:text-gray-100">
               {filename}
             </h2>
             {preview && (
-              <p className="mt-0.5 text-xs text-gray-500">
+              <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
                 {preview.totalLength.toLocaleString()} characters
-                {preview.truncated && ' (showing first 5,000)'}
+                {preview.truncated && ' · showing first 5,000'}
               </p>
             )}
           </div>
           <button
             onClick={onClose}
-            className="ml-4 rounded p-1 text-gray-400 hover:text-gray-600 transition-colors"
-            title="Close preview"
+            className="ml-4 rounded-lg p-1.5 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+            title="Close"
+            aria-label="Close preview"
           >
-            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
 
-        {/* Content */}
         <div className="flex-1 overflow-y-auto px-4 py-4">
           {isLoading && (
-            <div className="flex items-center justify-center py-12">
-              <div className="h-6 w-6 animate-spin rounded-full border-2 border-gray-300 border-t-gray-600" />
-              <span className="ml-2 text-sm text-gray-500">Loading preview...</span>
+            <div className="flex items-center justify-center py-12 gap-2">
+              <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 dark:border-white/20 border-t-gray-900 dark:border-t-white" />
+              <span className="text-sm text-gray-500 dark:text-gray-400">Loading…</span>
             </div>
           )}
 
           {error && (
-            <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-              {error}
-            </div>
+            <p className="text-sm text-gray-700 dark:text-gray-300">{error}</p>
           )}
 
           {preview && !isLoading && (
-            <pre className="whitespace-pre-wrap break-words text-sm leading-relaxed text-gray-800 font-mono">
+            <pre className="whitespace-pre-wrap break-words text-sm leading-relaxed text-gray-800 dark:text-gray-200 font-mono">
               {preview.content}
             </pre>
           )}
         </div>
 
-        {/* Footer */}
         {preview?.truncated && !isLoading && (
-          <div className="border-t border-gray-200 px-4 py-2 text-center text-xs text-gray-500">
-            Content truncated. Showing first 5,000 of {preview.totalLength.toLocaleString()} characters.
+          <div className="border-t border-gray-200 dark:border-white/10 px-4 py-2 text-center text-xs text-gray-500 dark:text-gray-400">
+            Truncated. Showing first 5,000 of {preview.totalLength.toLocaleString()} characters.
           </div>
         )}
       </div>

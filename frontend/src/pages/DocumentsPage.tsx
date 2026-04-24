@@ -4,15 +4,11 @@ import { FileUpload } from '@/components/documents/FileUpload';
 import { DocumentList } from '@/components/documents/DocumentList';
 import type { ToastType } from '@/hooks/useToast';
 
-/** Props for the DocumentsPage component. */
 interface DocumentsPageProps {
-  /** Function to display a toast notification */
   addToast: (type: ToastType, message: string) => string;
-  /** Whether this page tab is currently visible (controls polling) */
   isActive?: boolean;
 }
 
-/** Page for uploading, listing, and managing documents. */
 export function DocumentsPage({ addToast, isActive }: DocumentsPageProps) {
   const { documents, isLoading, error, upload, uploadBatch, batchProgress, clearBatch, refresh, deleteDocument, reorderDocuments } = useDocuments();
 
@@ -22,7 +18,6 @@ export function DocumentsPage({ addToast, isActive }: DocumentsPageProps) {
     }
   }, [refresh, isActive]);
 
-  // Poll while any document is still processing
   useEffect(() => {
     const hasProcessing = documents.some((d) => d.status === 'processing' || d.status === 'pending');
     if (!hasProcessing || isActive === false) return;
@@ -35,9 +30,9 @@ export function DocumentsPage({ addToast, isActive }: DocumentsPageProps) {
     async (file: File) => {
       const success = await upload(file);
       if (success) {
-        addToast('success', `"${file.name}" uploaded successfully.`);
+        addToast('success', `Uploaded "${file.name}".`);
       } else {
-        addToast('error', `Failed to upload "${file.name}".`);
+        addToast('error', `Could not upload "${file.name}".`);
       }
     },
     [upload, addToast],
@@ -47,9 +42,9 @@ export function DocumentsPage({ addToast, isActive }: DocumentsPageProps) {
     async (files: File[]) => {
       const result = await uploadBatch(files);
       if (result.completedCount === result.totalCount) {
-        addToast('success', `All ${result.totalCount} files uploaded successfully.`);
+        addToast('success', `Uploaded ${result.totalCount} files.`);
       } else {
-        addToast('info', `${result.completedCount} of ${result.totalCount} files uploaded.`);
+        addToast('info', `${result.completedCount} of ${result.totalCount} uploaded.`);
       }
     },
     [uploadBatch, addToast],
@@ -59,24 +54,26 @@ export function DocumentsPage({ addToast, isActive }: DocumentsPageProps) {
     async (id: string) => {
       const success = await deleteDocument(id);
       if (success) {
-        addToast('success', 'Document deleted successfully.');
+        addToast('success', 'Document deleted.');
       } else {
-        addToast('error', 'Failed to delete document.');
+        addToast('error', 'Could not delete document.');
       }
     },
     [deleteDocument, addToast],
   );
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-4 sm:py-8 w-full animate-fade-in">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Documents</h1>
-        <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-          Upload and manage your documents for Q&A.
+    <div className="mx-auto max-w-2xl px-4 sm:px-6 py-10 w-full animate-fade-in">
+      <header className="mb-8">
+        <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+          Documents
+        </h1>
+        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+          Upload PDF, DOCX, Markdown, or text files. You can query them from the chat.
         </p>
-      </div>
+      </header>
 
-      <div className="mb-6">
+      <div className="mb-8">
         <FileUpload
           onUpload={handleUpload}
           onUploadBatch={handleUploadBatch}
@@ -87,19 +84,17 @@ export function DocumentsPage({ addToast, isActive }: DocumentsPageProps) {
       </div>
 
       {error && (
-        <div className="mb-4 rounded-xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 px-4 py-3 text-sm text-red-700 dark:text-red-400">
-          {error}
-        </div>
+        <p className="mb-4 text-sm text-gray-700 dark:text-gray-300">{error}</p>
       )}
 
-      <div className="mb-3 flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Uploaded Documents</h2>
+      <div className="mb-2 flex items-center justify-between">
+        <h2 className="text-sm font-medium text-gray-900 dark:text-gray-100">Uploaded</h2>
         <button
           onClick={refresh}
           disabled={isLoading}
-          className="rounded-lg px-3 py-1.5 text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50 transition-colors"
+          className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 disabled:opacity-40 transition-colors"
         >
-          {isLoading ? 'Refreshing...' : 'Refresh'}
+          {isLoading ? 'Refreshing…' : 'Refresh'}
         </button>
       </div>
 

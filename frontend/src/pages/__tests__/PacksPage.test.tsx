@@ -44,7 +44,7 @@ describe('PacksPage', () => {
   it('shows loading state initially', () => {
     mockFetch.mockReturnValue(new Promise(() => {})); // never resolves
     render(<PacksPage />);
-    expect(screen.getByText('Loading packs...')).toBeInTheDocument();
+    expect(screen.getByText('Loading packs…')).toBeInTheDocument();
   });
 
   it('fetches and displays packs', async () => {
@@ -90,7 +90,7 @@ describe('PacksPage', () => {
     const installButtons = screen.getAllByRole('button', { name: /^Install$/i });
     expect(installButtons).toHaveLength(2); // two uninstalled packs
 
-    const uninstallButtons = screen.getAllByRole('button', { name: /Uninstall/i });
+    const uninstallButtons = screen.getAllByRole('button', { name: /^Remove$/i });
     expect(uninstallButtons).toHaveLength(1); // one installed pack
   });
 
@@ -168,7 +168,7 @@ describe('PacksPage', () => {
     });
 
     // Now should have 2 uninstall buttons
-    expect(screen.getAllByRole('button', { name: /Uninstall/i })).toHaveLength(2);
+    expect(screen.getAllByRole('button', { name: /^Remove$/i })).toHaveLength(2);
   });
 
   it('calls uninstall API when Uninstall button is clicked', async () => {
@@ -190,7 +190,7 @@ describe('PacksPage', () => {
       json: () => Promise.resolve({ name: 'react-guides', uninstalled: true }),
     });
 
-    const uninstallButton = screen.getByRole('button', { name: /Uninstall/i });
+    const uninstallButton = screen.getByRole('button', { name: /^Remove$/i });
     await user.click(uninstallButton);
 
     expect(mockFetch).toHaveBeenCalledWith('/api/packs/react-guides/uninstall', {
@@ -213,14 +213,14 @@ describe('PacksPage', () => {
     });
 
     // Initially 1 uninstall button
-    expect(screen.getAllByRole('button', { name: /Uninstall/i })).toHaveLength(1);
+    expect(screen.getAllByRole('button', { name: /^Remove$/i })).toHaveLength(1);
 
     mockFetch.mockResolvedValueOnce({
       ok: true,
       json: () => Promise.resolve({ name: 'react-guides', uninstalled: true }),
     });
 
-    const uninstallButton = screen.getByRole('button', { name: /Uninstall/i });
+    const uninstallButton = screen.getByRole('button', { name: /^Remove$/i });
     await user.click(uninstallButton);
 
     await waitFor(() => {
@@ -240,7 +240,7 @@ describe('PacksPage', () => {
     render(<PacksPage />);
 
     await waitFor(() => {
-      expect(screen.getByText(/Failed to load packs/)).toBeInTheDocument();
+      expect(screen.getByText(/Could not load packs/)).toBeInTheDocument();
     });
   });
 
@@ -253,7 +253,7 @@ describe('PacksPage', () => {
     render(<PacksPage />);
 
     await waitFor(() => {
-      expect(screen.getByText('No knowledge packs available.')).toBeInTheDocument();
+      expect(screen.getByText('No packs available.')).toBeInTheDocument();
     });
   });
 
@@ -277,6 +277,6 @@ describe('PacksPage', () => {
     const installButtons = screen.getAllByRole('button', { name: /^Install$/i });
     await user.click(installButtons[0]);
 
-    expect(screen.getByText('Installing...')).toBeInTheDocument();
+    expect(screen.getByText('Installing…')).toBeInTheDocument();
   });
 });

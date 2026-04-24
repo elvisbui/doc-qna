@@ -1,22 +1,15 @@
 import { useEffect, useState } from 'react';
 import type { Toast as ToastData, ToastType } from '@/hooks/useToast';
 
-const typeStyles: Record<ToastType, { bg: string; icon: string }> = {
-  success: {
-    bg: 'bg-green-600',
-    icon: '✓',
-  },
-  error: {
-    bg: 'bg-red-600',
-    icon: '✕',
-  },
-  info: {
-    bg: 'bg-blue-600',
-    icon: 'ℹ',
-  },
-};
+function Dot({ type }: { type: ToastType }) {
+  const cls = {
+    success: 'bg-white',
+    error: 'bg-white/60',
+    info: 'bg-white/60',
+  }[type];
+  return <span className={`h-1.5 w-1.5 rounded-full ${cls}`} aria-hidden="true" />;
+}
 
-/** Individual toast notification with slide-in animation and close button. */
 function ToastItem({
   toast,
   onClose,
@@ -25,32 +18,29 @@ function ToastItem({
   onClose: (id: string) => void;
 }) {
   const [visible, setVisible] = useState(false);
-  const style = typeStyles[toast.type];
 
   useEffect(() => {
-    // Trigger slide-in on next frame
     const frame = requestAnimationFrame(() => setVisible(true));
     return () => cancelAnimationFrame(frame);
   }, []);
 
   return (
     <div
-      className={`flex items-center gap-3 rounded-lg shadow-lg px-4 py-3 text-white text-sm max-w-sm transition-all duration-300 ease-out ${
+      className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm text-white max-w-sm transition-all duration-300 ease-out bg-gray-900 dark:bg-white dark:text-gray-900 ${
         visible ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'
-      } ${style.bg}`}
+      }`}
+      style={{ boxShadow: '0 6px 24px rgba(0,0,0,0.12)' }}
     >
-      <span className="flex-shrink-0 w-5 h-5 flex items-center justify-center rounded-full bg-white/20 text-xs font-bold">
-        {style.icon}
-      </span>
+      <Dot type={toast.type} />
       <span className="flex-1">{toast.message}</span>
       <button
         onClick={() => onClose(toast.id)}
-        className="flex-shrink-0 ml-2 hover:bg-white/20 rounded p-0.5 transition-colors"
+        className="flex-shrink-0 ml-2 rounded p-0.5 opacity-70 hover:opacity-100 transition-opacity"
         aria-label="Close notification"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          className="h-4 w-4"
+          className="h-3.5 w-3.5"
           viewBox="0 0 20 20"
           fill="currentColor"
         >
@@ -65,7 +55,6 @@ function ToastItem({
   );
 }
 
-/** Fixed-position container that stacks toast notifications in the bottom-right corner. */
 export function ToastContainer({
   toasts,
   onClose,

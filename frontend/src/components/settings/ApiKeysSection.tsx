@@ -4,14 +4,12 @@ import { Section, KeyStatus } from './FormFields';
 import type { Settings } from '@/types';
 import type { ToastType } from '@/hooks/useToast';
 
-/** Props for the ApiKeysSection component. */
 interface ApiKeysSectionProps {
   settings: Settings | null;
   addToast: (type: ToastType, message: string) => string;
   onRefresh: () => Promise<void>;
 }
 
-/** Settings section for entering and saving API keys for OpenAI, Anthropic, and Cloudflare. */
 export function ApiKeysSection({ settings, addToast, onRefresh }: ApiKeysSectionProps) {
   const [openaiKeyInput, setOpenaiKeyInput] = useState('');
   const [anthropicKeyInput, setAnthropicKeyInput] = useState('');
@@ -27,21 +25,21 @@ export function ApiKeysSection({ settings, addToast, onRefresh }: ApiKeysSection
     if (cloudflareAccountIdInput.trim()) keys.cloudflareAccountId = cloudflareAccountIdInput.trim();
 
     if (Object.keys(keys).length === 0) {
-      addToast('error', 'Enter at least one API key to save.');
+      addToast('error', 'Enter at least one key.');
       return;
     }
 
     setSavingKeys(true);
     try {
       await saveApiKeys(keys);
-      addToast('success', 'API keys saved successfully.');
+      addToast('success', 'Keys saved.');
       setOpenaiKeyInput('');
       setAnthropicKeyInput('');
       setCloudflareTokenInput('');
       setCloudflareAccountIdInput('');
       await onRefresh();
     } catch {
-      addToast('error', 'Failed to save API keys.');
+      addToast('error', 'Could not save keys.');
     } finally {
       setSavingKeys(false);
     }
@@ -49,81 +47,82 @@ export function ApiKeysSection({ settings, addToast, onRefresh }: ApiKeysSection
 
   const hasInput = !!(openaiKeyInput.trim() || anthropicKeyInput.trim() || cloudflareTokenInput.trim() || cloudflareAccountIdInput.trim());
 
+  const inputCls =
+    'w-full rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 text-gray-900 dark:text-gray-100 px-3 py-2 text-sm focus:outline-none focus:border-gray-400 dark:focus:border-white/30 transition-colors';
+
   return (
-    <Section title="API Keys">
-      <div className="space-y-4">
-        <div>
-          <div className="flex items-center justify-between mb-1">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              OpenAI API Key
-            </label>
-            <KeyStatus label="" present={settings?.hasOpenaiKey ?? false} />
-          </div>
-          <input
-            type="password"
-            data-testid="openai-key-input"
-            value={openaiKeyInput}
-            onChange={(e) => setOpenaiKeyInput(e.target.value)}
-            placeholder={settings?.hasOpenaiKey ? `Current: ${settings.openaiKeyHint}` : 'sk-...'}
-            className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-        <div>
-          <div className="flex items-center justify-between mb-1">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Anthropic API Key
-            </label>
-            <KeyStatus label="" present={settings?.hasAnthropicKey ?? false} />
-          </div>
-          <input
-            type="password"
-            data-testid="anthropic-key-input"
-            value={anthropicKeyInput}
-            onChange={(e) => setAnthropicKeyInput(e.target.value)}
-            placeholder={settings?.hasAnthropicKey ? `Current: ${settings.anthropicKeyHint}` : 'sk-ant-...'}
-            className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Cloudflare Account ID
+    <Section
+      title="API keys"
+      description="Keys are stored on the server and never returned to the client."
+    >
+      <div>
+        <div className="flex items-center justify-between mb-1.5">
+          <label className="block text-sm text-gray-700 dark:text-gray-300">
+            OpenAI
           </label>
-          <input
-            type="text"
-            data-testid="cloudflare-account-id-input"
-            value={cloudflareAccountIdInput}
-            onChange={(e) => setCloudflareAccountIdInput(e.target.value)}
-            placeholder="Cloudflare Account ID"
-            className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
+          <KeyStatus label="" present={settings?.hasOpenaiKey ?? false} />
         </div>
-        <div>
-          <div className="flex items-center justify-between mb-1">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Cloudflare API Token
-            </label>
-            <KeyStatus label="" present={settings?.hasCloudflareToken ?? false} />
-          </div>
-          <input
-            type="password"
-            data-testid="cloudflare-token-input"
-            value={cloudflareTokenInput}
-            onChange={(e) => setCloudflareTokenInput(e.target.value)}
-            placeholder={settings?.hasCloudflareToken ? `Current: ${settings.cloudflareKeyHint}` : 'Cloudflare API Token'}
-            className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
+        <input
+          type="password"
+          data-testid="openai-key-input"
+          value={openaiKeyInput}
+          onChange={(e) => setOpenaiKeyInput(e.target.value)}
+          placeholder={settings?.hasOpenaiKey ? `Current: ${settings.openaiKeyHint}` : 'sk-…'}
+          className={inputCls}
+        />
       </div>
-      <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-        Keys are stored in the settings overlay file. They are never exposed via the API.
-      </p>
-      <div className="pt-2">
+      <div>
+        <div className="flex items-center justify-between mb-1.5">
+          <label className="block text-sm text-gray-700 dark:text-gray-300">
+            Anthropic
+          </label>
+          <KeyStatus label="" present={settings?.hasAnthropicKey ?? false} />
+        </div>
+        <input
+          type="password"
+          data-testid="anthropic-key-input"
+          value={anthropicKeyInput}
+          onChange={(e) => setAnthropicKeyInput(e.target.value)}
+          placeholder={settings?.hasAnthropicKey ? `Current: ${settings.anthropicKeyHint}` : 'sk-ant-…'}
+          className={inputCls}
+        />
+      </div>
+      <div>
+        <label className="block text-sm text-gray-700 dark:text-gray-300 mb-1.5">
+          Cloudflare account ID
+        </label>
+        <input
+          type="text"
+          data-testid="cloudflare-account-id-input"
+          value={cloudflareAccountIdInput}
+          onChange={(e) => setCloudflareAccountIdInput(e.target.value)}
+          placeholder="account id"
+          className={inputCls}
+        />
+      </div>
+      <div>
+        <div className="flex items-center justify-between mb-1.5">
+          <label className="block text-sm text-gray-700 dark:text-gray-300">
+            Cloudflare API token
+          </label>
+          <KeyStatus label="" present={settings?.hasCloudflareToken ?? false} />
+        </div>
+        <input
+          type="password"
+          data-testid="cloudflare-token-input"
+          value={cloudflareTokenInput}
+          onChange={(e) => setCloudflareTokenInput(e.target.value)}
+          placeholder={settings?.hasCloudflareToken ? `Current: ${settings.cloudflareKeyHint}` : 'token'}
+          className={inputCls}
+        />
+      </div>
+      <div className="pt-1">
         <button
           onClick={handleSaveKeys}
           disabled={savingKeys || !hasInput}
-          className="px-6 py-2 bg-green-600 text-white rounded-md font-medium hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="rounded-full px-4 py-2 text-sm font-medium bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition-opacity"
         >
-          {savingKeys ? 'Saving...' : 'Save Keys'}
+          {savingKeys ? 'Saving…' : 'Save keys'}
         </button>
       </div>
     </Section>

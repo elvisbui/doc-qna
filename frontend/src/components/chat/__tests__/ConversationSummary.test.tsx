@@ -6,7 +6,7 @@ import { ConversationSummary } from '../ConversationSummary';
 describe('ConversationSummary', () => {
   it('renders the summary header', () => {
     render(<ConversationSummary summary="The user asked about Python docs." />);
-    expect(screen.getByText('Conversation summary')).toBeInTheDocument();
+    expect(screen.getByText('Earlier summary')).toBeInTheDocument();
   });
 
   it('does not show summary text when collapsed', () => {
@@ -18,7 +18,7 @@ describe('ConversationSummary', () => {
     const user = userEvent.setup();
     render(<ConversationSummary summary="The user asked about Python docs." />);
 
-    await user.click(screen.getByText('Conversation summary'));
+    await user.click(screen.getByText('Earlier summary'));
 
     expect(screen.getByText('The user asked about Python docs.')).toBeInTheDocument();
   });
@@ -28,11 +28,11 @@ describe('ConversationSummary', () => {
     render(<ConversationSummary summary="Summary text here." />);
 
     // Expand
-    await user.click(screen.getByText('Conversation summary'));
+    await user.click(screen.getByText('Earlier summary'));
     expect(screen.getByText('Summary text here.')).toBeInTheDocument();
 
     // Collapse
-    await user.click(screen.getByText('Conversation summary'));
+    await user.click(screen.getByText('Earlier summary'));
     expect(screen.queryByText('Summary text here.')).not.toBeInTheDocument();
   });
 });

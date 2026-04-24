@@ -13,7 +13,7 @@ describe('SuggestedQueries', () => {
     const queries = ['What is Python?', 'How does async work?'];
     render(<SuggestedQueries queries={queries} onSelect={vi.fn()} />);
 
-    expect(screen.getByText('Try asking:')).toBeInTheDocument();
+    expect(screen.getByText('Try')).toBeInTheDocument();
     expect(screen.getByText('What is Python?')).toBeInTheDocument();
     expect(screen.getByText('How does async work?')).toBeInTheDocument();
   });

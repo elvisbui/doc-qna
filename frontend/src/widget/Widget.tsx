@@ -157,7 +157,7 @@ export function Widget({ apiUrl, apiKey }: WidgetProps) {
       {isOpen && (
         <div className="chat-panel" data-testid="chat-panel">
           <div className="chat-header">
-            <span className="chat-header-title">Ask a question</span>
+            <span className="chat-header-title">doc-qna</span>
             <button
               className="close-button"
               onClick={() => setIsOpen(false)}
@@ -172,7 +172,7 @@ export function Widget({ apiUrl, apiKey }: WidgetProps) {
 
           {messages.length === 0 ? (
             <div className="message-list-empty">
-              Ask a question about your documents to get started.
+              Ask a question about your documents.
             </div>
           ) : (
             <div className="message-list">
@@ -210,7 +210,7 @@ export function Widget({ apiUrl, apiKey }: WidgetProps) {
               value={input}
               onChange={handleInputChange}
               onKeyDown={handleKeyDown}
-              placeholder="Type your question..."
+              placeholder="Message"
               rows={1}
               disabled={isLoading}
               data-testid="chat-input"

@@ -8,33 +8,24 @@ import { CitationPanel } from '@/components/chat/CitationPanel';
 import { PluginActivityPanel } from '@/components/chat/PluginActivityPanel';
 import { ConversationSummary } from '@/components/chat/ConversationSummary';
 import { exportAsMarkdown, exportAsJSON, downloadFile } from '@/lib/exportChat';
-import { AppAvatar } from '@/components/ui/Avatar';
 import type { ChatMessage, Citation } from '@/types';
 
 const DEFAULT_STARTERS = [
-  'Summarize the key points of this document',
-  'What are the main topics covered?',
-  'Find information about...',
-  'Compare and contrast...',
+  'Summarize the main points',
+  'What topics are covered?',
+  'Find information about…',
+  'Compare the documents',
 ];
 
-/** Props for the ChatPage component. */
 interface ChatPageProps {
-  /** Optional query to auto-send on mount (e.g., from landing page) */
   initialQuery?: string | null;
-  /** Callback to clear the pending initial query after it is sent */
   onQueryConsumed?: () => void;
-  /** Active conversation ID for multi-conversation support */
   conversationId?: string | null;
-  /** Pre-existing messages to restore when switching conversations */
   initialMessages?: ChatMessage[];
-  /** Pre-existing citations to restore when switching conversations */
   initialCitations?: Citation[];
-  /** Callback fired whenever messages or citations change, for persistence */
   onMessagesChange?: (messages: ChatMessage[], citations: Citation[]) => void;
 }
 
-/** Main chat page with message list, citation panel, plugin activity, and input. */
 export function ChatPage({
   initialQuery,
   onQueryConsumed,
@@ -100,7 +91,6 @@ export function ChatPage({
     resetWith,
   } = useChat(chatOptions);
 
-  // When conversation changes, reset chat state
   const prevConvIdRef = useRef(conversationId);
   useEffect(() => {
     if (conversationId !== prevConvIdRef.current) {
@@ -123,12 +113,12 @@ export function ChatPage({
 
   const handleExportMarkdown = useCallback(() => {
     const content = exportAsMarkdown(messages);
-    downloadFile(content, `chat-export-${timestamp()}.md`, 'text/markdown');
+    downloadFile(content, `chat-${timestamp()}.md`, 'text/markdown');
   }, [messages]);
 
   const handleExportJSON = useCallback(() => {
     const content = exportAsJSON(messages);
-    downloadFile(content, `chat-export-${timestamp()}.json`, 'application/json');
+    downloadFile(content, `chat-${timestamp()}.json`, 'application/json');
   }, [messages]);
 
   const toggleDocId = (id: string) => {
@@ -141,10 +131,8 @@ export function ChatPage({
 
   return (
     <div className="flex flex-col flex-1 min-h-0 bg-white dark:bg-[#212121]">
-      {/* Toolbar — doc filters + actions */}
       {(readyDocuments.length > 0 || hasMessages) && (
-        <div className="flex-shrink-0 flex items-center justify-between gap-2 px-4 py-2 border-b border-gray-100 dark:border-white/5">
-          {/* Document filter chips */}
+        <div className="flex-shrink-0 flex items-center justify-between gap-2 px-4 py-2 border-b border-gray-200 dark:border-white/10">
           <div className="flex items-center gap-2 flex-wrap min-w-0">
             {readyDocuments.length > 0 && (
               <>
@@ -155,7 +143,7 @@ export function ChatPage({
                     className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs transition-colors ${
                       selectedDocIds.includes(doc.id)
                         ? 'bg-gray-900 dark:bg-white text-white dark:text-gray-900'
-                        : 'bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/15'
+                        : 'bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/10'
                     }`}
                   >
                     {doc.filename}
@@ -169,7 +157,7 @@ export function ChatPage({
                 {selectedDocIds.length > 0 && (
                   <button
                     onClick={() => setSelectedDocIds([])}
-                    className="text-xs text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                    className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
                   >
                     Clear
                   </button>
@@ -178,12 +166,11 @@ export function ChatPage({
             )}
           </div>
 
-          {/* Actions */}
           <div className="flex items-center gap-1 flex-shrink-0">
             {isLoading && (
               <button
                 onClick={cancelStream}
-                className="rounded-full px-3 py-1 text-xs font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                className="rounded-full px-3 py-1 text-xs text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
               >
                 Stop
               </button>
@@ -192,7 +179,7 @@ export function ChatPage({
               <>
                 <button
                   onClick={handleExportMarkdown}
-                  className="p-1.5 rounded-lg text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
+                  className="p-1.5 rounded-lg text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-white/5 transition-colors"
                   title="Export as Markdown"
                 >
                   <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -201,7 +188,7 @@ export function ChatPage({
                 </button>
                 <button
                   onClick={handleExportJSON}
-                  className="p-1.5 rounded-lg text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
+                  className="p-1.5 rounded-lg text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-white/5 transition-colors"
                   title="Export as JSON"
                 >
                   <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -210,7 +197,7 @@ export function ChatPage({
                 </button>
                 <button
                   onClick={clearMessages}
-                  className="p-1.5 rounded-lg text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
+                  className="p-1.5 rounded-lg text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-white/5 transition-colors"
                   title="Clear chat"
                 >
                   <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -223,35 +210,31 @@ export function ChatPage({
         </div>
       )}
 
-      {/* Main chat area */}
       <div className="flex-1 flex flex-col min-h-0">
         {conversationSummary && (
           <ConversationSummary summary={conversationSummary} />
         )}
 
-        {/* Empty state */}
         {!hasMessages ? (
           <div className="flex-1 flex flex-col items-center justify-center px-4">
             <div className="text-center mb-8 animate-fade-in">
-              <AppAvatar size="lg" />
-              <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
-                What can I help with?
+              <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
+                Start a new chat
               </h2>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                Ask questions about your uploaded documents
+              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                Ask something about your uploaded documents.
               </p>
             </div>
 
-            {/* Suggestion cards */}
             {DEFAULT_STARTERS.length > 0 && (
-              <div className="w-full max-w-2xl mx-auto grid grid-cols-2 gap-2 animate-slide-up">
+              <div className="w-full max-w-2xl mx-auto flex flex-wrap justify-center gap-2 animate-slide-up">
                 {DEFAULT_STARTERS.slice(0, 4).map((query) => (
                   <button
                     key={query}
                     onClick={() => sendMessage(query)}
-                    className="text-left rounded-xl border border-gray-200 dark:border-white/10 px-4 py-3 text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
+                    className="rounded-full border border-gray-200 dark:border-white/15 px-3.5 py-1.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
                   >
-                    <span className="line-clamp-2">{query}</span>
+                    {query}
                   </button>
                 ))}
               </div>
@@ -263,9 +246,7 @@ export function ChatPage({
 
             {error && (
               <div className="max-w-3xl mx-auto w-full px-4 pb-2">
-                <div className="rounded-lg bg-red-50 dark:bg-red-900/20 px-4 py-2.5 text-sm text-red-600 dark:text-red-400">
-                  {error}
-                </div>
+                <p className="text-sm text-gray-700 dark:text-gray-300">{error}</p>
               </div>
             )}
 
@@ -274,7 +255,6 @@ export function ChatPage({
           </>
         )}
 
-        {/* Input — always pinned to bottom */}
         <div className="flex-shrink-0">
           <ChatInput onSend={sendMessage} isLoading={isLoading} />
         </div>

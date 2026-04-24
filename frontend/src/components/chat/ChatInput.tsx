@@ -1,14 +1,10 @@
 import { useState, useRef, useCallback } from 'react';
 
-/** Props for the ChatInput component. */
 interface ChatInputProps {
-  /** Callback invoked with the trimmed message text when the user submits */
   onSend: (message: string) => void | Promise<void>;
-  /** Whether a chat response is currently streaming (disables input) */
   isLoading: boolean;
 }
 
-/** Auto-resizing textarea input for composing and sending chat messages. */
 export function ChatInput({ onSend, isLoading }: ChatInputProps) {
   const [value, setValue] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -51,36 +47,36 @@ export function ChatInput({ onSend, isLoading }: ChatInputProps) {
 
   return (
     <div className="max-w-3xl mx-auto w-full px-4 pb-4 pt-2">
-      <div className="flex items-end rounded-full border border-gray-200 dark:border-white/15 bg-white dark:bg-[#303030] shadow-sm focus-within:border-gray-300 dark:focus-within:border-white/25 transition-colors">
+      <div className="flex items-end rounded-3xl border border-gray-200 dark:border-white/15 bg-white dark:bg-[#2f2f2f] focus-within:border-gray-400 dark:focus-within:border-white/25 transition-colors">
         <textarea
           ref={textareaRef}
           value={value}
           onChange={handleInput}
           onKeyDown={handleKeyDown}
-          placeholder="Ask anything"
+          placeholder="Message"
           disabled={isLoading}
           rows={1}
-          className="flex-1 resize-none bg-transparent pl-5 pr-2 py-3 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex-1 resize-none bg-transparent pl-5 pr-2 py-3.5 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
         />
-        <div className="flex-shrink-0 pr-2 pb-1.5">
+        <div className="flex-shrink-0 pr-2 pb-2">
           <button
             onClick={handleSubmit}
             disabled={!canSend}
             className={`flex items-center justify-center w-8 h-8 rounded-full transition-all ${
               canSend
-                ? 'bg-black dark:bg-white text-white dark:text-black hover:opacity-80'
-                : 'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+                ? 'bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:opacity-90'
+                : 'bg-gray-200 dark:bg-white/10 text-gray-400 dark:text-white/30 cursor-not-allowed'
             }`}
             aria-label="Send message"
           >
-            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M3.478 2.405a.75.75 0 00-.926.94l2.432 7.905H13.5a.75.75 0 010 1.5H4.984l-2.432 7.905a.75.75 0 00.926.94 60.519 60.519 0 0018.445-8.986.75.75 0 000-1.218A60.517 60.517 0 003.478 2.405z" />
+            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 19V5m0 0l-7 7m7-7l7 7" />
             </svg>
           </button>
         </div>
       </div>
       <p className="text-center text-[11px] text-gray-400 dark:text-gray-500 mt-2">
-        Press Enter to send, Shift+Enter for a new line
+        Answers are drawn from your uploaded documents only.
       </p>
     </div>
   );

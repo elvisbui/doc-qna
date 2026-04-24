@@ -2,9 +2,46 @@
 @plugin "@tailwindcss/typography";
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* Smooth color transitions for dark mode */
+@theme {
+  --font-sans:
+    "Söhne", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+  --font-mono:
+    "Söhne Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
+}
+
+:root {
+  --surface: #ffffff;
+  --surface-muted: #f9f9f9;
+  --surface-hover: #f2f2f2;
+  --text-primary: #0d0d0d;
+  --text-secondary: #5d5d5d;
+  --text-tertiary: #8e8e8e;
+  --line: #ececec;
+  --line-strong: #d9d9d9;
+  --accent: #0d0d0d;
+  --accent-inverse: #ffffff;
+}
+
+html.dark {
+  --surface: #212121;
+  --surface-muted: #171717;
+  --surface-hover: rgba(255, 255, 255, 0.06);
+  --text-primary: #ececec;
+  --text-secondary: #b4b4b4;
+  --text-tertiary: #8e8e8e;
+  --line: rgba(255, 255, 255, 0.1);
+  --line-strong: rgba(255, 255, 255, 0.18);
+  --accent: #ffffff;
+  --accent-inverse: #0d0d0d;
+}
+
 html {
   color-scheme: light;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 html.dark {
@@ -13,7 +50,11 @@ html.dark {
   color: #ececec;
 }
 
-/* Custom scrollbar — thin and subtle */
+body {
+  font-feature-settings: "ss01", "cv11";
+  letter-spacing: -0.003em;
+}
+
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -24,12 +65,12 @@ html.dark {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.15);
+  background: rgba(0, 0, 0, 0.14);
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.25);
+  background: rgba(0, 0, 0, 0.24);
 }
 
 html.dark ::-webkit-scrollbar-thumb {
@@ -40,25 +81,23 @@ html.dark ::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.2);
 }
 
-/* Selection styling */
 ::selection {
-  background-color: #b4d5fe;
-  color: #1a1a1a;
+  background-color: rgba(0, 0, 0, 0.14);
+  color: inherit;
 }
 
 html.dark ::selection {
-  background-color: #2e5a88;
-  color: #e5e5e5;
+  background-color: rgba(255, 255, 255, 0.18);
+  color: inherit;
 }
 
-/* Animations */
 @keyframes fade-in {
   from { opacity: 0; transform: translateY(4px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
 .animate-fade-in {
-  animation: fade-in 0.3s ease-out;
+  animation: fade-in 0.25s ease-out;
 }
 
 @keyframes slide-up {
@@ -67,7 +106,7 @@ html.dark ::selection {
 }
 
 .animate-slide-up {
-  animation: slide-up 0.4s ease-out;
+  animation: slide-up 0.35s ease-out;
 }
 
 .stagger-1 { animation-delay: 50ms; animation-fill-mode: both; }
@@ -84,7 +123,6 @@ html.dark ::selection {
   animation: blink 1s step-end infinite;
 }
 
-/* Sidebar transition */
 .sidebar-transition {
   transition: width 0.2s ease, transform 0.2s ease;
 }

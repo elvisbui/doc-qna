@@ -28,11 +28,6 @@ const defaultSettings = {
 
 const mockAddToast = vi.fn();
 
-/**
- * Helper: create a URL-based fetch mock that routes requests correctly.
- * Supports optional overrides for specific URLs and records all calls
- * so tests can inspect POST/PUT requests.
- */
 function createFetchMock(
   settingsData: Record<string, unknown> = defaultSettings,
   ollamaModelsData: { models: unknown[]; error?: string } = { models: [] },
@@ -82,7 +77,6 @@ beforeEach(() => {
 
 afterEach(async () => {
   cleanup();
-  // Flush pending microtasks so async effects from the previous render settle
   await new Promise((r) => setTimeout(r, 10));
 });
 
@@ -97,28 +91,34 @@ function renderWithSettings(
   return { settings, mock };
 }
 
+function embeddingSection() {
+  return screen.getByRole('heading', { name: 'Embeddings' }).closest('section')!;
+}
+
 describe('SettingsPage - Embedding Model Picker', () => {
-  it('renders the Embedding Configuration section', async () => {
+  it('renders the Embeddings section', async () => {
     renderWithSettings();
 
     await waitFor(() => {
-      expect(screen.getByText('Embedding Configuration')).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Embeddings' })).toBeInTheDocument();
     });
   });
 
-  it('shows Embedding Provider dropdown', async () => {
+  it('shows Provider dropdown in Embeddings section', async () => {
     renderWithSettings();
 
     await waitFor(() => {
-      expect(screen.getByText('Embedding Provider')).toBeInTheDocument();
+      const section = embeddingSection();
+      expect(within(section).getByText('Provider')).toBeInTheDocument();
     });
   });
 
-  it('shows Embedding Model label', async () => {
+  it('shows Model label in Embeddings section', async () => {
     renderWithSettings();
 
     await waitFor(() => {
-      expect(screen.getByText('Embedding Model')).toBeInTheDocument();
+      const section = embeddingSection();
+      expect(within(section).getByText('Model')).toBeInTheDocument();
     });
   });
 
@@ -129,8 +129,8 @@ describe('SettingsPage - Embedding Model Picker', () => {
     });
 
     await waitFor(() => {
-      const embeddingSection = screen.getByText('Embedding Configuration').closest('section')!;
-      const selects = within(embeddingSection).getAllByRole('combobox');
+      const section = embeddingSection();
+      const selects = within(section).getAllByRole('combobox');
       expect(selects.length).toBeGreaterThanOrEqual(2);
       const modelSelect = selects[1];
       const options = within(modelSelect).getAllByRole('option');
@@ -150,8 +150,7 @@ describe('SettingsPage - Embedding Model Picker', () => {
     });
 
     await waitFor(() => {
-      const embeddingSection = screen.getByText('Embedding Configuration').closest('section')!;
-      const selects = within(embeddingSection).getAllByRole('combobox');
+      const selects = within(embeddingSection()).getAllByRole('combobox');
       expect(selects.length).toBeGreaterThanOrEqual(2);
       const modelSelect = selects[1] as HTMLSelectElement;
       expect(modelSelect.value).toBe('text-embedding-3-large');
@@ -168,15 +167,11 @@ describe('SettingsPage - Embedding Model Picker', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByText('Embedding Configuration')).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Embeddings' })).toBeInTheDocument();
     });
 
-    const embeddingSection = screen.getByText('Embedding Configuration').closest('section')!;
-
-    // Should show fallback models
     await waitFor(() => {
-      const selects = within(embeddingSection).getAllByRole('combobox');
-      // The embedding model select should contain fallback Ollama models
+      const selects = within(embeddingSection()).getAllByRole('combobox');
       const modelSelect = selects[1];
       const options = within(modelSelect).getAllByRole('option');
       const optionValues = options.map((o) => (o as HTMLOptionElement).value);
@@ -202,13 +197,11 @@ describe('SettingsPage - Embedding Model Picker', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByText('Embedding Configuration')).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Embeddings' })).toBeInTheDocument();
     });
 
-    const embeddingSection = screen.getByText('Embedding Configuration').closest('section')!;
-
     await waitFor(() => {
-      const selects = within(embeddingSection).getAllByRole('combobox');
+      const selects = within(embeddingSection()).getAllByRole('combobox');
       const modelSelect = selects[1];
       const options = within(modelSelect).getAllByRole('option');
       const optionValues = options.map((o) => (o as HTMLOptionElement).value);
@@ -224,8 +217,8 @@ describe('SettingsPage - Embedding Model Picker', () => {
     });
 
     await waitFor(() => {
-      const embeddingSection = screen.getByText('Embedding Configuration').closest('section')!;
-      const refreshButton = within(embeddingSection).queryByText('Refresh');
+      const section = embeddingSection();
+      const refreshButton = within(section).queryByText('Refresh');
       expect(refreshButton).toBeInTheDocument();
     });
   });
@@ -238,10 +231,10 @@ describe('SettingsPage - Embedding Model Picker', () => {
       embeddingModel: 'text-embedding-3-small',
     });
 
-    // Wait for the embedding model select to appear (openai branch renders a raw <select>)
     let modelSelect: HTMLSelectElement;
     await waitFor(() => {
-      const label = screen.getByText('Embedding Model');
+      const section = embeddingSection();
+      const label = within(section).getByText('Model');
       const select = label.parentElement!.querySelector('select');
       expect(select).not.toBeNull();
       modelSelect = select as HTMLSelectElement;
@@ -259,11 +252,10 @@ describe('SettingsPage - Embedding Model Picker', () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByText('Embedding Configuration')).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Embeddings' })).toBeInTheDocument();
     });
 
-    const embeddingSection = screen.getByText('Embedding Configuration').closest('section')!;
-    const selects = within(embeddingSection).getAllByRole('combobox');
+    const selects = within(embeddingSection()).getAllByRole('combobox');
     const providerSelect = selects[0] as HTMLSelectElement;
 
     expect(providerSelect.value).toBe('openai');
@@ -281,24 +273,20 @@ describe('SettingsPage - Embedding Model Picker', () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByText('Embedding Configuration')).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Embeddings' })).toBeInTheDocument();
     });
 
-    // Change embedding model
-    const embeddingSection = screen.getByText('Embedding Configuration').closest('section')!;
     let modelSelect!: HTMLSelectElement;
     await waitFor(() => {
-      const selects = within(embeddingSection).getAllByRole('combobox');
+      const selects = within(embeddingSection()).getAllByRole('combobox');
       expect(selects.length).toBeGreaterThanOrEqual(2);
       modelSelect = selects[1] as HTMLSelectElement;
     });
     await user.selectOptions(modelSelect, 'text-embedding-ada-002');
 
-    // Click Save Settings
-    const saveButton = screen.getByRole('button', { name: /Save Settings/i });
+    const saveButton = screen.getByRole('button', { name: /^Save$/ });
     await user.click(saveButton);
 
-    // Verify the PUT call included the new embedding model
     await waitFor(() => {
       const putCall = mock.mock.calls.find(
         (call: unknown[]) => call[1] && (call[1] as RequestInit).method === 'PUT',
@@ -311,11 +299,11 @@ describe('SettingsPage - Embedding Model Picker', () => {
 });
 
 describe('SettingsPage - Model Parameters', () => {
-  it('renders the Model Parameters section', async () => {
+  it('renders the Model parameters section', async () => {
     renderWithSettings();
 
     await waitFor(() => {
-      expect(screen.getByText('Model Parameters')).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Model parameters' })).toBeInTheDocument();
     });
   });
 
@@ -339,7 +327,7 @@ describe('SettingsPage - Model Parameters', () => {
     });
   });
 
-  it('renders Max Tokens input with default value', async () => {
+  it('renders Max tokens input with default value', async () => {
     renderWithSettings();
 
     await waitFor(() => {
@@ -371,7 +359,7 @@ describe('SettingsPage - Model Parameters', () => {
       expect(document.getElementById('field-temperature')!).toBeInTheDocument();
     });
 
-    const saveButton = screen.getByRole('button', { name: /Save Settings/i });
+    const saveButton = screen.getByRole('button', { name: /^Save$/ });
     await user.click(saveButton);
 
     await waitFor(() => {
@@ -406,7 +394,7 @@ describe('SettingsPage - Model Parameters', () => {
     });
   });
 
-  it('Max Tokens input has correct min/max attributes', async () => {
+  it('Max tokens input has correct min/max attributes', async () => {
     renderWithSettings();
 
     await waitFor(() => {
@@ -418,11 +406,11 @@ describe('SettingsPage - Model Parameters', () => {
 });
 
 describe('SettingsPage - API Key Input Fields', () => {
-  it('renders the API Keys section', async () => {
+  it('renders the API keys section', async () => {
     renderWithSettings();
 
     await waitFor(() => {
-      expect(screen.getByText('API Keys')).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'API keys' })).toBeInTheDocument();
     });
   });
 
@@ -480,30 +468,30 @@ describe('SettingsPage - API Key Input Fields', () => {
 
     await waitFor(() => {
       const openaiInput = screen.getByTestId('openai-key-input');
-      expect(openaiInput).toHaveAttribute('placeholder', 'sk-...');
+      expect(openaiInput).toHaveAttribute('placeholder', 'sk-…');
       const anthropicInput = screen.getByTestId('anthropic-key-input');
-      expect(anthropicInput).toHaveAttribute('placeholder', 'sk-ant-...');
+      expect(anthropicInput).toHaveAttribute('placeholder', 'sk-ant-…');
     });
   });
 
-  it('renders the Save Keys button', async () => {
+  it('renders the Save keys button', async () => {
     renderWithSettings();
 
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: /Save Keys/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Save keys/i })).toBeInTheDocument();
     });
   });
 
-  it('disables Save Keys button when inputs are empty', async () => {
+  it('disables Save keys button when inputs are empty', async () => {
     renderWithSettings();
 
     await waitFor(() => {
-      const btn = screen.getByRole('button', { name: /Save Keys/i });
+      const btn = screen.getByRole('button', { name: /Save keys/i });
       expect(btn).toBeDisabled();
     });
   });
 
-  it('enables Save Keys button when a key is entered', async () => {
+  it('enables Save keys button when a key is entered', async () => {
     const user = userEvent.setup();
     renderWithSettings();
 
@@ -514,11 +502,11 @@ describe('SettingsPage - API Key Input Fields', () => {
     const input = screen.getByTestId('openai-key-input');
     await user.type(input, 'sk-new-test-key');
 
-    const btn = screen.getByRole('button', { name: /Save Keys/i });
+    const btn = screen.getByRole('button', { name: /Save keys/i });
     expect(btn).not.toBeDisabled();
   });
 
-  it('calls saveApiKeys POST endpoint when Save Keys is clicked', async () => {
+  it('calls saveApiKeys POST endpoint when Save keys is clicked', async () => {
     const user = userEvent.setup();
     const { mock } = renderWithSettings();
 
@@ -529,7 +517,7 @@ describe('SettingsPage - API Key Input Fields', () => {
     const input = screen.getByTestId('openai-key-input');
     await user.type(input, 'sk-new-key-value');
 
-    const btn = screen.getByRole('button', { name: /Save Keys/i });
+    const btn = screen.getByRole('button', { name: /Save keys/i });
     await user.click(btn);
 
     await waitFor(() => {
@@ -545,7 +533,7 @@ describe('SettingsPage - API Key Input Fields', () => {
     });
   });
 
-  it('shows "Configured" status when key is present', async () => {
+  it('shows "Set" status when key is present', async () => {
     renderWithSettings({
       hasOpenaiKey: true,
       openaiKeyHint: '********test',
@@ -554,22 +542,22 @@ describe('SettingsPage - API Key Input Fields', () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByText('API Keys')).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'API keys' })).toBeInTheDocument();
     });
 
-    const apiKeysSection = screen.getByText('API Keys').closest('section')!;
-    expect(within(apiKeysSection).getByText('Configured')).toBeInTheDocument();
-    const notConfigured = within(apiKeysSection).getAllByText('Not configured');
-    expect(notConfigured.length).toBeGreaterThanOrEqual(1);
+    const apiKeysSection = screen.getByRole('heading', { name: 'API keys' }).closest('section')!;
+    expect(within(apiKeysSection).getByText('Set')).toBeInTheDocument();
+    const notSet = within(apiKeysSection).getAllByText('Not set');
+    expect(notSet.length).toBeGreaterThanOrEqual(1);
   });
 });
 
 describe('SettingsPage - System Prompt', () => {
-  it('renders the System Prompt section', async () => {
+  it('renders the System prompt section', async () => {
     renderWithSettings();
 
     await waitFor(() => {
-      expect(screen.getByText('System Prompt')).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'System prompt' })).toBeInTheDocument();
     });
   });
 
@@ -577,7 +565,7 @@ describe('SettingsPage - System Prompt', () => {
     renderWithSettings();
 
     await waitFor(() => {
-      expect(screen.getByText('Custom System Prompt')).toBeInTheDocument();
+      expect(screen.getByTestId('system-prompt-textarea')).toBeInTheDocument();
     });
 
     const textarea = screen.getByPlaceholderText(/Use the following context/);
@@ -599,7 +587,7 @@ describe('SettingsPage - System Prompt', () => {
     renderWithSettings();
 
     await waitFor(() => {
-      expect(screen.getByText('System Prompt')).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'System prompt' })).toBeInTheDocument();
     });
 
     const textarea = screen.getByPlaceholderText(/Use the following context/);
@@ -622,10 +610,10 @@ describe('SettingsPage - System Prompt', () => {
     const { mock } = renderWithSettings({ systemPrompt: 'Custom prompt' });
 
     await waitFor(() => {
-      expect(screen.getByText('System Prompt')).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'System prompt' })).toBeInTheDocument();
     });
 
-    const saveButton = screen.getByRole('button', { name: /Save Settings/i });
+    const saveButton = screen.getByRole('button', { name: /^Save$/ });
     await user.click(saveButton);
 
     await waitFor(() => {

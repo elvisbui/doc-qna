@@ -15,7 +15,7 @@ describe('PluginActivityPanel', () => {
       { pluginName: 'summarizer', hookName: 'on_post_generate', durationMs: 12.5, error: false },
     ];
     render(<PluginActivityPanel trace={trace} />);
-    expect(screen.getByText(/Plugin Activity/)).toBeInTheDocument();
+    expect(screen.getByText(/Plugin activity/)).toBeInTheDocument();
     expect(screen.getByText(/1/)).toBeInTheDocument();
   });
 

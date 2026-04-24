@@ -8,7 +8,7 @@ describe('ChatInput', () => {
     render(<ChatInput onSend={vi.fn()} isLoading={false} />);
 
     expect(
-      screen.getByPlaceholderText('Ask anything'),
+      screen.getByPlaceholderText('Message'),
     ).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Send message' })).toBeInTheDocument();
   });
@@ -18,7 +18,7 @@ describe('ChatInput', () => {
     render(<ChatInput onSend={vi.fn()} isLoading={false} />);
 
     const textarea = screen.getByPlaceholderText(
-      'Ask anything',
+      'Message',
     );
     await user.type(textarea, 'Hello world');
 
@@ -31,7 +31,7 @@ describe('ChatInput', () => {
     render(<ChatInput onSend={onSend} isLoading={false} />);
 
     const textarea = screen.getByPlaceholderText(
-      'Ask anything',
+      'Message',
     );
     await user.type(textarea, 'test message{Enter}');
 
@@ -45,7 +45,7 @@ describe('ChatInput', () => {
     render(<ChatInput onSend={onSend} isLoading={false} />);
 
     const textarea = screen.getByPlaceholderText(
-      'Ask anything',
+      'Message',
     );
     await user.type(textarea, 'line one{Shift>}{Enter}{/Shift}line two');
 
@@ -57,7 +57,7 @@ describe('ChatInput', () => {
     render(<ChatInput onSend={vi.fn()} isLoading={true} />);
 
     const textarea = screen.getByPlaceholderText(
-      'Ask anything',
+      'Message',
     );
     const button = screen.getByRole('button', { name: 'Send message' });
 
@@ -78,7 +78,7 @@ describe('ChatInput', () => {
     render(<ChatInput onSend={onSend} isLoading={false} />);
 
     const textarea = screen.getByPlaceholderText(
-      'Ask anything',
+      'Message',
     );
     await user.type(textarea, '   {Enter}');
 
@@ -91,7 +91,7 @@ describe('ChatInput', () => {
     render(<ChatInput onSend={onSend} isLoading={false} />);
 
     const textarea = screen.getByPlaceholderText(
-      'Ask anything',
+      'Message',
     );
     await user.type(textarea, 'click test');
 

@@ -71,7 +71,7 @@ describe('PluginsPage', () => {
   it('shows loading state initially', () => {
     mockFetch.mockReturnValue(new Promise(() => {})); // never resolves
     render(<PluginsPage />);
-    expect(screen.getByText('Loading plugins...')).toBeInTheDocument();
+    expect(screen.getByText('Loading plugins…')).toBeInTheDocument();
   });
 
   it('fetches and displays plugins', async () => {
@@ -193,7 +193,7 @@ describe('PluginsPage', () => {
     render(<PluginsPage />);
 
     await waitFor(() => {
-      expect(screen.getByText(/Failed to load plugins/)).toBeInTheDocument();
+      expect(screen.getByText(/Could not load plugins/)).toBeInTheDocument();
     });
   });
 
@@ -259,11 +259,10 @@ describe('PluginsPage', () => {
     await user.click(settingsBtn);
 
     await waitFor(() => {
-      expect(screen.getByText('Configuration')).toBeInTheDocument();
+      expect(screen.getByLabelText('Max Depth')).toBeInTheDocument();
     });
 
     // Verify config fields are rendered
-    expect(screen.getByLabelText('Max Depth')).toBeInTheDocument();
     expect(screen.getByLabelText('User Agent')).toBeInTheDocument();
     expect(screen.getByLabelText('Follow Redirects')).toBeInTheDocument();
     expect(screen.getByLabelText('Mode')).toBeInTheDocument();
@@ -300,14 +299,14 @@ describe('PluginsPage', () => {
     await user.click(settingsBtn);
 
     await waitFor(() => {
-      expect(screen.getByText('Configuration')).toBeInTheDocument();
+      expect(screen.getByLabelText('Max Depth')).toBeInTheDocument();
     });
 
     // Click again to collapse
     await user.click(settingsBtn);
 
     await waitFor(() => {
-      expect(screen.queryByText('Configuration')).not.toBeInTheDocument();
+      expect(screen.queryByLabelText('Max Depth')).not.toBeInTheDocument();
     });
   });
 

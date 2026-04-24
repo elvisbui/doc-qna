@@ -56,3 +56,8 @@ htmlcov/
 
 # Byte-compiled
 *.pyc
+
+# AI tooling / private notes
+CLAUDE.md
+BLOCKERS.md
+.claude/

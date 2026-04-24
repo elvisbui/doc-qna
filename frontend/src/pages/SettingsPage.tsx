@@ -10,9 +10,7 @@ import { ApiKeysSection } from '@/components/settings/ApiKeysSection';
 import { SystemPromptSection } from '@/components/settings/SystemPromptSection';
 import { Section, SelectField, NumberField } from '@/components/settings/FormFields';
 
-/** Props for the SettingsPage component. */
 interface SettingsPageProps {
-  /** Function to display a toast notification */
   addToast: (type: ToastType, message: string) => string;
 }
 
@@ -20,7 +18,6 @@ const CHUNKING_STRATEGIES = ['fixed', 'semantic'] as const;
 const RETRIEVAL_STRATEGIES = ['vector', 'hybrid'] as const;
 const LOG_LEVELS = ['DEBUG', 'INFO', 'WARNING', 'ERROR'] as const;
 
-/** Page for configuring LLM, embedding, chunking, retrieval, and API key settings. */
 export function SettingsPage({ addToast }: SettingsPageProps) {
   const { settings, isLoading, error, updateSettings, refresh } = useSettings();
   const [form, setForm] = useState<Partial<Settings>>({});
@@ -51,7 +48,6 @@ export function SettingsPage({ addToast }: SettingsPageProps) {
     }
   }, []);
 
-  // Sync form state when settings load
   useEffect(() => {
     if (settings) {
       setForm({
@@ -73,14 +69,12 @@ export function SettingsPage({ addToast }: SettingsPageProps) {
     }
   }, [settings]);
 
-  // Fetch Ollama models when LLM provider is ollama
   useEffect(() => {
     if (form.llmProvider === 'ollama') {
       fetchOllamaModels();
     }
   }, [form.llmProvider, fetchOllamaModels]);
 
-  // Fetch Ollama embedding models when embedding provider is ollama
   const fetchOllamaEmbeddingModels = useCallback(async () => {
     setLoadingEmbeddingModels(true);
     setOllamaEmbeddingError(null);
@@ -124,9 +118,9 @@ export function SettingsPage({ addToast }: SettingsPageProps) {
     const ok = await updateSettings(form);
     setSaving(false);
     if (ok) {
-      addToast('success', 'Settings saved successfully.');
+      addToast('success', 'Settings saved.');
     } else {
-      addToast('error', 'Failed to save settings.');
+      addToast('error', 'Could not save settings.');
     }
   }, [form, updateSettings, addToast]);
 
@@ -144,7 +138,7 @@ export function SettingsPage({ addToast }: SettingsPageProps) {
       const result = await testProviderConnection(provider, config);
       setConnectionResult(result);
     } catch {
-      setConnectionResult({ status: 'error', message: 'Failed to reach the server.' });
+      setConnectionResult({ status: 'error', message: 'Could not reach the server.' });
     } finally {
       setTestingConnection(false);
     }
@@ -153,7 +147,7 @@ export function SettingsPage({ addToast }: SettingsPageProps) {
   if (isLoading && !settings) {
     return (
       <div className="flex items-center justify-center py-20">
-        <p className="text-gray-500 dark:text-gray-400">Loading settings...</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400">Loading settings…</p>
       </div>
     );
   }
@@ -161,18 +155,20 @@ export function SettingsPage({ addToast }: SettingsPageProps) {
   if (error && !settings) {
     return (
       <div className="flex items-center justify-center py-20">
-        <p className="text-red-600 dark:text-red-400">Error: {error}</p>
+        <p className="text-sm text-gray-600 dark:text-gray-300">{error}</p>
       </div>
     );
   }
 
   return (
-    <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-        Settings
-      </h2>
+    <div className="max-w-2xl mx-auto px-4 sm:px-6 py-10">
+      <header className="mb-10">
+        <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+          Settings
+        </h1>
+      </header>
 
-      <div className="space-y-8">
+      <div className="space-y-10">
         <LLMSection
           form={form}
           ollamaModels={ollamaModels}
@@ -195,28 +191,28 @@ export function SettingsPage({ addToast }: SettingsPageProps) {
           onRefreshEmbeddingModels={fetchOllamaEmbeddingModels}
         />
 
-        <Section title="Chunking & Retrieval">
+        <Section title="Chunking and retrieval">
           <SelectField
-            label="Chunking Strategy"
+            label="Chunking strategy"
             value={form.chunkingStrategy ?? ''}
             options={CHUNKING_STRATEGIES}
             onChange={(v) => handleChange('chunkingStrategy', v)}
           />
           <SelectField
-            label="Retrieval Strategy"
+            label="Retrieval strategy"
             value={form.retrievalStrategy ?? ''}
             options={RETRIEVAL_STRATEGIES}
             onChange={(v) => handleChange('retrievalStrategy', v)}
           />
           <NumberField
-            label="Chunk Size"
+            label="Chunk size"
             value={form.chunkSize ?? 0}
             min={100}
             max={10000}
             onChange={(v) => handleChange('chunkSize', v)}
           />
           <NumberField
-            label="Chunk Overlap"
+            label="Chunk overlap"
             value={form.chunkOverlap ?? 0}
             min={0}
             max={5000}
@@ -230,7 +226,7 @@ export function SettingsPage({ addToast }: SettingsPageProps) {
           onFieldChange={handleChange}
         />
 
-        <Section title="Model Parameters">
+        <Section title="Model parameters">
           <NumberField
             label="Temperature"
             value={form.llmTemperature ?? 0.7}
@@ -248,7 +244,7 @@ export function SettingsPage({ addToast }: SettingsPageProps) {
             onChange={(v) => handleChange('llmTopP', v)}
           />
           <NumberField
-            label="Max Tokens"
+            label="Max tokens"
             value={form.llmMaxTokens ?? 2048}
             min={128}
             max={8192}
@@ -259,7 +255,7 @@ export function SettingsPage({ addToast }: SettingsPageProps) {
 
         <Section title="Logging">
           <SelectField
-            label="Log Level"
+            label="Log level"
             value={form.logLevel ?? ''}
             options={LOG_LEVELS}
             onChange={(v) => handleChange('logLevel', v)}
@@ -276,9 +272,9 @@ export function SettingsPage({ addToast }: SettingsPageProps) {
           <button
             onClick={handleSave}
             disabled={saving}
-            className="px-6 py-2 bg-blue-600 text-white rounded-md font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="rounded-full px-4 py-2 text-sm font-medium bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition-opacity"
           >
-            {saving ? 'Saving...' : 'Save Settings'}
+            {saving ? 'Saving…' : 'Save'}
           </button>
         </div>
       </div>

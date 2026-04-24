@@ -6,8 +6,8 @@ import { LandingPage } from '../LandingPage';
 describe('LandingPage', () => {
   it('renders heading and input', () => {
     render(<LandingPage onNavigateToChat={() => {}} />);
-    expect(screen.getByText('Ask Your Documents Anything')).toBeInTheDocument();
-    expect(screen.getByPlaceholderText('Ask anything')).toBeInTheDocument();
+    expect(screen.getByText('doc-qna')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Message')).toBeInTheDocument();
   });
 
   it('renders attach file button', () => {
@@ -21,7 +21,7 @@ describe('LandingPage', () => {
 
     render(<LandingPage onNavigateToChat={onNavigateToChat} />);
 
-    const textarea = screen.getByPlaceholderText('Ask anything');
+    const textarea = screen.getByPlaceholderText('Message');
     await user.type(textarea, 'What is Python?');
     await user.keyboard('{Enter}');
 
@@ -34,7 +34,7 @@ describe('LandingPage', () => {
 
     render(<LandingPage onNavigateToChat={onNavigateToChat} />);
 
-    const textarea = screen.getByPlaceholderText('Ask anything');
+    const textarea = screen.getByPlaceholderText('Message');
     await user.click(textarea);
     await user.keyboard('{Enter}');
 
@@ -47,15 +47,11 @@ describe('LandingPage', () => {
 
     render(<LandingPage onNavigateToChat={onNavigateToChat} />);
 
-    const textarea = screen.getByPlaceholderText('Ask anything');
+    const textarea = screen.getByPlaceholderText('Message');
     await user.type(textarea, 'Hello world');
 
-    // Send button is the round black button
-    const buttons = screen.getAllByRole('button');
-    const sendButton = buttons.find(
-      (b) => !b.hasAttribute('disabled') && b !== screen.getByTitle('Upload a document'),
-    );
-    if (sendButton) await user.click(sendButton);
+    const sendButton = screen.getByLabelText('Send');
+    await user.click(sendButton);
 
     expect(onNavigateToChat).toHaveBeenCalledWith('Hello world');
   });

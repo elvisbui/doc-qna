@@ -10,13 +10,6 @@ function formatFileSize(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-const STATUS_STYLES: Record<DocumentStatus, string> = {
-  pending: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400',
-  processing: 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400',
-  ready: 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400',
-  error: 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400',
-};
-
 const STATUS_LABELS: Record<DocumentStatus, string> = {
   pending: 'Pending',
   processing: 'Processing',
@@ -24,11 +17,20 @@ const STATUS_LABELS: Record<DocumentStatus, string> = {
   error: 'Error',
 };
 
-/** 6-dot grip icon used as a drag handle. */
+function StatusDot({ status }: { status: DocumentStatus }) {
+  const cls = {
+    pending: 'bg-gray-300 dark:bg-white/25',
+    processing: 'bg-gray-400 dark:bg-white/40 animate-pulse',
+    ready: 'bg-gray-900 dark:bg-white',
+    error: 'bg-gray-900 dark:bg-white ring-2 ring-gray-900/10 dark:ring-white/10',
+  }[status];
+  return <span className={`inline-block h-1.5 w-1.5 rounded-full ${cls}`} aria-hidden="true" />;
+}
+
 function DragHandle() {
   return (
     <svg
-      className="h-5 w-5 text-gray-300 dark:text-gray-600 group-hover:text-gray-500 dark:group-hover:text-gray-400 transition-colors"
+      className="h-5 w-5 text-gray-300 dark:text-white/20 group-hover:text-gray-500 dark:group-hover:text-white/40 transition-colors"
       viewBox="0 0 16 20"
       fill="currentColor"
       aria-hidden="true"
@@ -43,25 +45,18 @@ function DragHandle() {
   );
 }
 
-/** Props for the DocumentList component. */
 interface DocumentListProps {
-  /** Array of uploaded documents to display */
   documents: Document[];
-  /** Callback to delete a document by ID */
   onDelete: (id: string) => Promise<void>;
-  /** Callback to reorder documents via drag-and-drop */
   onReorder: (fromIndex: number, toIndex: number) => void;
-  /** Whether the document list is currently loading */
   isLoading: boolean;
 }
 
-/** Sortable list of uploaded documents with status badges, preview, and delete controls. */
 export function DocumentList({ documents, onDelete, onReorder, isLoading }: DocumentListProps) {
   const [confirmingId, setConfirmingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [previewDoc, setPreviewDoc] = useState<{ id: string; filename: string } | null>(null);
 
-  // Drag-and-drop state
   const dragIndexRef = useRef<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   const [draggingIndex, setDraggingIndex] = useState<number | null>(null);
@@ -84,8 +79,6 @@ export function DocumentList({ documents, onDelete, onReorder, isLoading }: Docu
   const handleCancelDelete = () => {
     setConfirmingId(null);
   };
-
-  // --- Drag-and-drop handlers ---
 
   const handleDragStart = (index: number) => {
     dragIndexRef.current = index;
@@ -125,15 +118,15 @@ export function DocumentList({ documents, onDelete, onReorder, isLoading }: Docu
   if (documents.length === 0) {
     return (
       <EmptyState
-        title="No documents uploaded yet"
-        description="Upload a document to get started."
+        title="No documents yet"
+        description="Upload a PDF, DOCX, Markdown, or text file to get started."
       />
     );
   }
 
   return (
-    <div className="overflow-hidden rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
-      <ul className="divide-y divide-gray-200 dark:divide-gray-700">
+    <>
+      <ul className="divide-y divide-gray-200 dark:divide-white/10 border-t border-gray-200 dark:border-white/10">
         {documents.map((doc, index) => (
           <li
             key={doc.id}
@@ -143,58 +136,50 @@ export function DocumentList({ documents, onDelete, onReorder, isLoading }: Docu
             onDrop={(e) => handleDrop(e, index)}
             onDragEnd={handleDragEnd}
             onDragLeave={handleDragLeave}
-            className={`group flex flex-col sm:flex-row sm:items-center justify-between px-4 py-3 gap-2 sm:gap-0 transition-all hover:bg-gray-50 dark:hover:bg-gray-750 ${
+            className={`group flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-0 py-3 transition-all ${
               draggingIndex === index ? 'opacity-50' : ''
             } ${
               dragOverIndex === index && draggingIndex !== index
-                ? 'border-2 border-blue-400 dark:border-blue-500'
+                ? 'bg-gray-50 dark:bg-white/5'
                 : ''
             }`}
           >
-            {/* Drag handle */}
-            <div className="mr-3 flex shrink-0 cursor-grab items-center active:cursor-grabbing">
-              <DragHandle />
-            </div>
-
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-3 flex-wrap">
-                <p className="truncate text-sm font-medium text-gray-900 dark:text-gray-100">
-                  {doc.filename}
-                </p>
-                <span
-                  className={`inline-flex shrink-0 items-center rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_STYLES[doc.status]}`}
-                >
-                  {STATUS_LABELS[doc.status]}
-                </span>
+            <div className="flex items-center gap-3 min-w-0 flex-1">
+              <div className="shrink-0 cursor-grab active:cursor-grabbing">
+                <DragHandle />
               </div>
-              <div className="mt-1 flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
-                <span>{doc.fileType.replace(/^\./, '').toUpperCase()}</span>
-                <span className="hidden sm:inline">{formatFileSize(doc.fileSize)}</span>
-                {doc.errorMessage && (
-                  <span className="text-red-600 dark:text-red-400" title={doc.errorMessage}>
-                    {doc.errorMessage}
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <p className="truncate text-sm text-gray-900 dark:text-gray-100">
+                    {doc.filename}
+                  </p>
+                  <span className="inline-flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
+                    <StatusDot status={doc.status} />
+                    {STATUS_LABELS[doc.status]}
                   </span>
-                )}
+                </div>
+                <div className="mt-0.5 flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
+                  <span>{doc.fileType.replace(/^\./, '').toUpperCase()}</span>
+                  <span className="hidden sm:inline">{formatFileSize(doc.fileSize)}</span>
+                  {doc.errorMessage && (
+                    <span title={doc.errorMessage} className="truncate">
+                      {doc.errorMessage}
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
 
-            <div className="flex shrink-0 items-center gap-2 sm:ml-4 self-end sm:self-center">
+            <div className="flex shrink-0 items-center gap-1 sm:ml-4 self-end sm:self-center">
               <button
                 onClick={() => setPreviewDoc({ id: doc.id, filename: doc.filename })}
-                className="rounded-lg p-1.5 text-gray-400 dark:text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
-                title="Preview document"
+                className="rounded-lg p-1.5 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+                title="Preview"
+                aria-label={`Preview ${doc.filename}`}
               >
-                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                  />
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                  />
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                 </svg>
               </button>
               {confirmingId === doc.id ? (
@@ -202,13 +187,13 @@ export function DocumentList({ documents, onDelete, onReorder, isLoading }: Docu
                   <button
                     onClick={() => handleDelete(doc.id)}
                     disabled={deletingId === doc.id}
-                    className="rounded-lg px-2.5 py-1 text-xs font-medium text-white bg-red-600 hover:bg-red-700 disabled:opacity-50 transition-colors"
+                    className="rounded-full px-2.5 py-1 text-xs font-medium bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:opacity-90 disabled:opacity-40 transition-opacity"
                   >
-                    {deletingId === doc.id ? 'Deleting...' : 'Confirm'}
+                    {deletingId === doc.id ? 'Deleting…' : 'Confirm'}
                   </button>
                   <button
                     onClick={handleCancelDelete}
-                    className="rounded-lg px-2.5 py-1 text-xs font-medium text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
+                    className="rounded-full px-2.5 py-1 text-xs text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
                   >
                     Cancel
                   </button>
@@ -216,15 +201,12 @@ export function DocumentList({ documents, onDelete, onReorder, isLoading }: Docu
               ) : (
                 <button
                   onClick={() => handleDelete(doc.id)}
-                  className="rounded-lg p-1.5 text-gray-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
-                  title="Delete document"
+                  className="rounded-lg p-1.5 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+                  title="Delete"
+                  aria-label={`Delete ${doc.filename}`}
                 >
-                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                    />
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                   </svg>
                 </button>
               )}
@@ -239,6 +221,6 @@ export function DocumentList({ documents, onDelete, onReorder, isLoading }: Docu
           onClose={() => setPreviewDoc(null)}
         />
       )}
-    </div>
+    </>
   );
 }
