@@ -51,6 +51,9 @@ htmlcov/
 # Docker
 .docker/
 
+# Cloudflare Workers
+.wrangler/
+
 # Ruff cache
 .ruff_cache/
 
